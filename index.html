@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фармакология в полевых условиях v2.0</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/progress-matrix-styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a3a52">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏥</text></svg>">
+    <link rel="stylesheet" href="css/progress-matrix-styles.css">
+    <link rel="stylesheet" href="css/mobile-ui-styles.css">
+    <link rel="stylesheet" href="css/auth-styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- HEADER -->
+        <header class="header">
+            <h1>🏥 Полевая медицина</h1>
+            <div class="user-info">
+                <span id="userName">Курсант</span>
+                <span class="sync-status" id="syncStatus">🔄</span>
+            </div>
+        </header>
+
+        <!-- NAVIGATION -->
+        <nav class="navigation">
+            <button onclick="showSection('menu')" class="nav-btn active" data-section="menu">🏠</button>
+            <button onclick="showSection('test')" class="nav-btn" data-section="test">📝</button>
+            <button onclick="showSection('cards')" class="nav-btn" data-section="cards">💊</button>
+            <button onclick="showSection('cases')" class="nav-btn" data-section="cases">🎮</button>
+            <button onclick="showSection('progress')" class="nav-btn" data-section="progress">📊</button>
+        </nav>
+
+        <!-- LOADING -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Загрузка данных...</p>
+        </div>
+
+        <!-- ГЛАВНОЕ МЕНЮ -->
+        <section id="menu" class="section active">
+            <div class="menu-grid">
+                <div class="menu-card" onclick="showSection('test')">
+                    <div class="menu-icon">📝</div>
+                    <h3>ТЕСТЫ</h3>
+                    <p>Вопросы с иллюстрациями клинических случаев</p>
+                </div>
+                
+                <div class="menu-card" onclick="showSection('cards')">
+                    <div class="menu-icon">💊</div>
+                    <h3>ПРЕПАРАТЫ</h3>
+                    <p>Флэш-карты с фото препаратов</p>
+                </div>
+                
+                <div class="menu-card featured" onclick="showSection('cases')">
+                    <div class="menu-icon">🎮</div>
+                    <h3>КЕЙСЫ</h3>
+                    <p>Интерактивные клинические сценарии</p>
+                    <span class="badge">RPG</span>
+                </div>
+                
+                <div class="menu-card" onclick="showSection('progress')">
+                    <div class="menu-icon">📊</div>
+                    <h3>ПРОГРЕСС</h3>
+                    <p>Ваша статистика обучения</p>
+                </div>
+            </div>
+            
+            <div class="update-info">
+                <p>📡 Последнее обновление: <span id="lastUpdate">--</span></p>
+                <button onclick="syncData()" class="btn btn-small">🔄 Обновить данные</button>
+            </div>
+        </section>
+
+        <!-- МОДУЛЬ ТЕСТОВ С КАРТИНКАМИ -->
+        <section id="test" class="section">
+            <div class="test-container">
+                <div class="test-header">
+                    <span>Вопрос <strong id="questionNum">1</strong>/<span id="totalQuestions">20</span></span>
+                    <span class="score">✓ <span id="correctCount">0</span></span>
+                </div>
+                
+                <!-- Картинка вопроса -->
+                <div class="question-image-container" id="questionImageContainer">
+                    <img id="questionImage" src="" alt="Клинический случай">
+                    <button class="zoom-btn" onclick="zoomImage()">🔍</button>
+                </div>
+                
+                <div class="question-text" id="questionText">
+                    Загрузка...
+                </div>
+                
+                <div class="answers" id="answersContainer"></div>
+                
+                <div class="explanation" id="explanation"></div>
+                
+                <div class="test-controls">
+                    <button onclick="checkTestAnswer()" class="btn btn-primary" id="checkBtn">Проверить</button>
+                    <button onclick="nextTestQuestion()" class="btn btn-secondary" id="nextBtn">Далее →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- МОДУЛЬ ФЛЭШ-КАРТ С ИЛЛЮСТРАЦИЯМИ -->
+<section id="cards" class="section">
+    <div class="cards-header">
+        <h2>💊 Препараты и оборудование</h2>
+        <div class="cards-filters">
+            <select id="categoryFilter" onchange="filterCards()">
+                <option value="all">Все категории</option>
+                <option value="Антибиотики">Антибиотики</option>
+                <option value="Анальгетики">Анальгетики</option>
+                <option value="Антидоты">Антидоты</option>
+                <option value="Экстренные">Экстренные</option>
+                <option value="Инструменты">Инструменты</option>
+                <option value="Расходники">Расходные материалы</option>
+            </select>
+            <div class="view-toggle">
+                <button onclick="setCardView('single')" class="view-btn active" id="viewSingle">📄</button>
+                <button onclick="setCardView('grid')" class="view-btn" id="viewGrid">📊</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Режим одиночной карты -->
+    <div id="singleCardView" class="single-card-view">
+        <div class="flashcard-wrapper">
+            <div class="flashcard" id="flashcard" onclick="flipCard()">
+                <!-- Лицевая сторона -->
+                <div class="card-side card-front" id="cardFront">
+                    <div class="card-category" id="cardCategory">Категория</div>
+                    
+                    <div class="card-image-container">
+                        <img id="drugImage" src="" alt="Изображение препарата">
+                        <div class="image-placeholder" id="imagePlaceholder">
+                            <span>💊</span>
+                        </div>
+                    </div>
+                    
+                    <h3 class="card-title" id="drugName">Название препарата</h3>
+                    <p class="card-subtitle" id="drugINN_front">Международное название</p>
+                    
+                    <div class="tap-hint">
+                        <span class="tap-icon">👆</span>
+                        <span>Нажмите для подробностей</span>
+                    </div>
+                </div>
+                
+                <!-- Обратная сторона -->
+                <div class="card-side card-back" id="cardBack">
+                    <div class="card-back-header">
+                        <h3 id="drugName_back">Название</h3>
+                        <span class="card-form" id="drugForm_badge">Форма</span>
+                    </div>
+                    
+                    <div class="drug-info-grid">
+                        <div class="info-section">
+                            <div class="info-icon">💉</div>
+                            <div class="info-content">
+                                <span class="info-label">Дозировка</span>
+                                <span class="info-value" id="drugDosage">—</span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section">
+                            <div class="info-icon">✅</div>
+                            <div class="info-content">
+                                <span class="info-label">Показания</span>
+                                <span class="info-value" id="drugIndications">—</span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section warning">
+                            <div class="info-icon">⚠️</div>
+                            <div class="info-content">
+                                <span class="info-label">Противопоказания</span>
+                                <span class="info-value" id="drugContra">—</span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section">
+                            <div class="info-icon">⚡</div>
+                            <div class="info-content">
+                                <span class="info-label">Побочные эффекты</span>
+                                <span class="info-value" id="drugSideEffects">—</span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section field-note">
+                            <div class="info-icon">🏕️</div>
+                            <div class="info-content">
+                                <span class="info-label">Полевые особенности</span>
+                                <span class="info-value" id="drugField">—</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Дополнительные изображения -->
+                    <div class="additional-images" id="additionalImages">
+                        <!-- Динамически добавляются -->
+                    </div>
+                    
+                    <div class="tap-hint">
+                        <span>Нажмите чтобы вернуться</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Кнопки управления -->
+        <div class="card-controls">
+            <button onclick="prevCard()" class="btn btn-icon" id="prevBtn">
+                <span>←</span>
+            </button>
+            
+            <div class="card-actions">
+                <button onclick="markCard('know')" class="btn btn-success">
+                    <span>✓</span> Знаю
+                </button>
+                <button onclick="markCard('dontknow')" class="btn btn-danger">
+                    <span>✗</span> Повторить
+                </button>
+            </div>
+            
+            <button onclick="nextCard()" class="btn btn-icon" id="nextBtn">
+                <span>→</span>
+            </button>
+        </div>
+        
+        <!-- Прогресс -->
+        <div class="cards-progress">
+            <div class="progress-text">
+                <span id="cardIndex">1</span> / <span id="totalCards">0</span>
+            </div>
+            <div class="progress-bar-mini">
+                <div class="progress-fill-mini" id="cardsProgressFill"></div>
+            </div>
+            <div class="progress-stats">
+                <span class="stat-know">✓ <span id="knowCount">0</span></span>
+                <span class="stat-repeat">↻ <span id="repeatCount">0</span></span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Режим сетки (галерея) -->
+    <div id="gridCardView" class="grid-card-view" style="display: none;">
+        <div class="cards-grid" id="cardsGrid">
+            <!-- Динамически заполняется -->
+        </div>
+    </div>
+</section>
+
+        
+        <!-- МОДУЛЬ КЕЙСОВ (RPG) -->
+        <section id="cases" class="section">
+            <div class="cases-container">
+                <!-- Список сценариев -->
+                <div id="scenarioList" class="scenario-list">
+                    <h2>🎮 Клинические сценарии</h2>
+                    <p>Выберите сценарий для прохождения:</p>
+                    <div id="scenariosGrid" class="scenarios-grid"></div>
+                </div>
+                
+                <!-- Активный сценарий -->
+                <div id="activeScenario" class="active-scenario" style="display: none;">
+                    <!-- Статус пациента -->
+                    <div class="patient-status" id="patientStatus">
+                        <div class="vital-signs">
+                            <span class="vital" id="vitalBP">АД: --/--</span>
+                            <span class="vital" id="vitalHR">ЧСС: --</span>
+                            <span class="vital" id="vitalState">Состояние: --</span>
+                        </div>
+                        <div class="patient-condition" id="patientCondition">
+                            <div class="condition-bar">
+                                <div class="condition-fill" id="conditionFill"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Сцена -->
+                    <div class="scene">
+                        <div class="scene-image-container">
+                            <img id="sceneImage" src="" alt="Ситуация">
+                        </div>
+                        
+                        <div class="scene-content">
+                            <h3 id="sceneTitle">Заголовок</h3>
+                            <p id="sceneDescription">Описание ситуации...</p>
+                        </div>
+                        
+                        <!-- Варианты действий -->
+                        <div class="choices" id="choicesContainer"></div>
+                        
+                        <!-- Результат выбора -->
+                        <div class="choice-result" id="choiceResult"></div>
+                    </div>
+                    
+                    <!-- История действий -->
+                    <div class="action-log">
+                        <h4>📋 Журнал действий:</h4>
+                        <ul id="actionLog"></ul>
+                    </div>
+                    
+                    <button onclick="exitScenario()" class="btn btn-secondary">← Выйти</button>
+                </div>
+                
+                <!-- Экран результата -->
+                <div id="scenarioResult" class="scenario-result" style="display: none;">
+                    <div class="result-icon" id="resultIcon">🏆</div>
+                    <h2 id="resultTitle">Результат</h2>
+                    <p id="resultMessage">Описание результата</p>
+                    <div class="result-stats" id="resultStats"></div>
+                    <button onclick="restartScenario()" class="btn btn-primary">🔄 Пройти заново</button>
+                    <button onclick="exitScenario()" class="btn btn-secondary">← К списку</button>
+                </div>
+            </div>
+        </section>
+
+       <!-- МОДУЛЬ ПРОГРЕССА -->
+<section id="progress" class="section">
+    <h2>📊 Ваш прогресс</h2>
+    
+    <!-- МАТРИЦА КОМПЕТЕНЦИЙ -->
+    <div id="competency-matrix-container"></div>
+    
+    <div class="progress-grid">
+        <div class="progress-card">
+            <h3>📅 Дней в строю</h3>
+            <div class="stat-value" id="studyDays">1</div>
+            <p>непрерывного обучения</p>
+        </div>
+
+        <div class="progress-card">
+            <h3>📝 Статистика тестов</h3>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>Пройдено:</span>
+                <strong id="testsComplete">0</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>Средний балл:</span>
+                <strong id="avgScore">0%</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>Лучший балл:</span>
+                <strong id="bestScore">0%</strong>
+            </div>
+        </div>
+        
+        <div class="progress-card achievements" style="grid-column: 1 / -1;">
+            <h3>🏆 Достижения</h3>
+            <div id="achievements"></div>
+        </div>
+    </div>
+</section>
+
+        <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ИЗОБРАЖЕНИЙ -->
+        <div id="imageModal" class="modal">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <img id="modalImage" src="">
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="fallback-data.js"></script>
+    <script src="js/data-loader.js"></script>
+    <script src="js/test-module.js"></script>
+    <script src="js/cards-module.js"></script>
+    <script src="js/cases-module.js"></script>
+    <script src="js/progress-module.js"></script>
+    <script src="js/progress-matrix.js"></script>
+    <script src="js/app.js"></script>
+    <!-- Авторизация и синхронизация -->
+    <script src="js/auth-module.js"></script>
+    <script src="js/sync-module.js"></script>
+    <script src="js/auth-ui.js"></script>
+    <script src="js/app-auth-integration.js"></script>
+    
+</body>
+
+
+</html>
+
+
+
+
+

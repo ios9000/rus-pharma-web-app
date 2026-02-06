@@ -1,0 +1,610 @@
+/* ============================================
+   МАТРИЦА ПРОГРЕССА КОМПЕТЕНЦИЙ
+   Адаптивные стили для смартфона v3.0
+   ============================================ */
+/* ============================================
+   МАТРИЦА ПРОГРЕССА КОМПЕТЕНЦИЙ
+   Адаптивные стили для смартфона v3.1
+   
+   ВАЖНО: Стили header, user-info, update-info
+   находятся в mobile-ui-styles.css
+   ============================================ */
+
+/* === ТАБЫ БЛОКОВ === */
+.block-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 8px 12px;
+    background: #243242;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.block-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.block-tab {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    background: transparent;
+    border: 1px solid #3a4a5a;
+    border-radius: 8px;
+    color: #94a3b8;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.block-tab:hover {
+    background: #2d3d4d;
+    border-color: #4a5a6a;
+}
+
+.block-tab.active {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: white;
+}
+
+/* === НЕТ ДАННЫХ === */
+.matrix-no-data {
+    padding: 30px 16px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.matrix-no-data p {
+    margin: 8px 0;
+}
+
+.matrix-no-data p:first-child {
+    font-size: 18px;
+}
+
+/* === КОНТЕЙНЕР МАТРИЦЫ === */
+.competency-matrix-card {
+    background: #1e2a38;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+}
+
+/* === ЗАГОЛОВОК МАТРИЦЫ === */
+.matrix-header {
+    background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid #3a4a5a;
+}
+
+.matrix-header-icon {
+    font-size: 20px;
+}
+
+.matrix-header h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* === КОНТЕЙНЕР ТАБЛИЦЫ С ГОРИЗОНТАЛЬНЫМ СКРОЛЛОМ === */
+.matrix-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #475569 #1e2a38;
+}
+
+.matrix-table-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.matrix-table-container::-webkit-scrollbar-track {
+    background: #1e2a38;
+}
+
+.matrix-table-container::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 3px;
+}
+
+/* === ТАБЛИЦА === */
+.progress-matrix-table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.progress-matrix-table thead {
+    background: #2c3e50;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.progress-matrix-table th {
+    padding: 10px 8px;
+    text-align: center;
+    color: #94a3b8;
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border-bottom: 2px solid #3a4a5a;
+    white-space: nowrap;
+}
+
+.progress-matrix-table th:first-child {
+    text-align: left;
+    padding-left: 12px;
+    position: sticky;
+    left: 0;
+    background: #2c3e50;
+    z-index: 2;
+}
+
+/* === СТРОКИ === */
+.progress-matrix-table tbody tr {
+    background: #1e2a38;
+    transition: background 0.2s ease;
+}
+
+.progress-matrix-table tbody tr:nth-child(even) {
+    background: #243242;
+}
+
+.progress-matrix-table tbody tr:hover {
+    background: #2d3d4d;
+}
+
+/* === ЯЧЕЙКИ === */
+.progress-matrix-table td {
+    padding: 12px 8px;
+    text-align: center;
+    color: #e2e8f0;
+    border-bottom: 1px solid #2d3d4d;
+    white-space: nowrap;
+}
+
+.progress-matrix-table td:first-child {
+    text-align: left;
+    padding-left: 12px;
+    position: sticky;
+    left: 0;
+    background: inherit;
+    z-index: 1;
+}
+
+.progress-matrix-table tbody tr:nth-child(even) td:first-child {
+    background: #243242;
+}
+
+.progress-matrix-table tbody tr:nth-child(odd) td:first-child {
+    background: #1e2a38;
+}
+
+/* === ЯЧЕЙКА КОМПЕТЕНЦИИ === */
+.competency-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 100px;
+}
+
+.competency-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.competency-name {
+    font-weight: 500;
+    color: #f1f5f9;
+    font-size: 13px;
+}
+
+/* === ЯЧЕЙКИ С ПРОЦЕНТАМИ === */
+.score-cell {
+    font-weight: 500;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.score-cell.has-value {
+    color: #e2e8f0;
+    font-weight: 600;
+}
+
+.score-cell.not-passed {
+    opacity: 0.6;
+}
+
+/* === ДЕЛЬТА === */
+.delta-cell {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 13px;
+}
+
+.delta-cell.positive {
+    color: #4ade80;
+}
+
+.delta-cell.neutral {
+    color: #fbbf24;
+}
+
+.delta-cell.negative {
+    color: #f87171;
+}
+
+.delta-cell.not-available {
+    color: #64748b;
+    opacity: 0.6;
+}
+
+.delta-indicator {
+    font-size: 14px;
+}
+
+/* === ЛЕГЕНДА (ФУТЕР) === */
+.matrix-footer {
+    background: #243242;
+    padding: 10px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    border-top: 1px solid #3a4a5a;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+.legend-icon {
+    font-size: 12px;
+}
+
+.legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.legend-dot.green { background: #4ade80; }
+.legend-dot.yellow { background: #fbbf24; }
+.legend-dot.red { background: #f87171; }
+
+/* === ПУСТОЕ СОСТОЯНИЕ === */
+.matrix-empty-state {
+    padding: 30px 16px;
+    text-align: center;
+}
+
+.matrix-empty-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    opacity: 0.6;
+}
+
+.matrix-empty-text {
+    color: #94a3b8;
+    font-size: 14px;
+    margin-bottom: 16px;
+    line-height: 1.4;
+}
+
+.matrix-empty-btn {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 100%;
+    max-width: 280px;
+}
+
+.matrix-empty-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* ============================================
+   ПОДСКАЗКА О СКРОЛЛЕ
+   ============================================ */
+
+.scroll-hint {
+    display: none;
+    text-align: center;
+    padding: 8px;
+    color: #64748b;
+    font-size: 11px;
+    background: #243242;
+    border-top: 1px solid #334155;
+}
+
+.scroll-hint::before {
+    content: '← ';
+}
+
+.scroll-hint::after {
+    content: ' →';
+}
+
+@media (max-width: 768px) {
+    .scroll-hint {
+        display: block;
+    }
+}
+
+/* ============================================
+   АДАПТИВНОСТЬ МАТРИЦЫ ДЛЯ СМАРТФОНА
+   ============================================ */
+
+/* Планшеты */
+@media (max-width: 768px) {
+    .progress-matrix-table {
+        font-size: 12px;
+        min-width: 550px;
+    }
+    
+    .progress-matrix-table th {
+        padding: 8px 6px;
+        font-size: 10px;
+    }
+    
+    .progress-matrix-table td {
+        padding: 10px 6px;
+    }
+    
+    .competency-name-cell {
+        min-width: 90px;
+    }
+    
+    .competency-name {
+        font-size: 12px;
+    }
+    
+    .matrix-footer {
+        gap: 8px;
+        padding: 8px 10px;
+    }
+    
+    .legend-item {
+        font-size: 10px;
+    }
+}
+
+/* Смартфоны */
+@media (max-width: 480px) {
+    .competency-matrix-card {
+        border-radius: 8px;
+        margin-bottom: 16px;
+    }
+    
+    .matrix-header {
+        padding: 12px 14px;
+    }
+    
+    .matrix-header h3 {
+        font-size: 14px;
+    }
+    
+    .matrix-header-icon {
+        font-size: 18px;
+    }
+    
+    .progress-matrix-table {
+        font-size: 11px;
+        min-width: 500px;
+    }
+    
+    .progress-matrix-table th {
+        padding: 8px 5px;
+        font-size: 9px;
+    }
+    
+    .progress-matrix-table td {
+        padding: 10px 5px;
+    }
+    
+    .competency-icon {
+        font-size: 14px;
+    }
+    
+    .competency-name {
+        font-size: 11px;
+    }
+    
+    .competency-name-cell {
+        min-width: 80px;
+        gap: 6px;
+    }
+    
+    .score-cell,
+    .delta-cell {
+        font-size: 11px;
+    }
+    
+    .delta-indicator {
+        font-size: 12px;
+    }
+    
+    /* Легенда в две строки на узких экранах */
+    .matrix-footer {
+        padding: 8px;
+        gap: 6px 12px;
+    }
+    
+    .legend-item {
+        font-size: 9px;
+        gap: 4px;
+    }
+    
+    .legend-dot {
+        width: 6px;
+        height: 6px;
+    }
+}
+
+/* Очень узкие экраны */
+@media (max-width: 360px) {
+    .matrix-header h3 {
+        font-size: 13px;
+    }
+    
+    .progress-matrix-table {
+        min-width: 450px;
+    }
+    
+    .competency-name {
+        max-width: 60px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* ============================================
+   PROGRESS GRID (карточки статистики)
+   Восстановленный оригинальный дизайн
+   ============================================ */
+
+#progress .progress-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr; /* Две колонки рядом */
+    gap: 20px;
+    margin-top: 20px;
+    max-width: 600px;
+}
+
+#progress .progress-card {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+#progress .progress-card h3 {
+    font-size: 15px;
+    color: #1a3a52;
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+#progress .progress-card .stat-value {
+    font-size: 48px;
+    font-weight: bold;
+    color: #1a3a52;
+    line-height: 1;
+}
+
+#progress .progress-card p {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: #666;
+}
+
+/* Строки статистики тестов */
+#progress .progress-card > div[style*="display: flex"] {
+    font-size: 15px;
+    padding: 3px 0;
+    white-space: nowrap;
+}
+
+#progress .progress-card > div[style*="display: flex"] span {
+    color: #555;
+}
+
+#progress .progress-card > div[style*="display: flex"] strong {
+    color: #1a3a52;
+    font-weight: 600;
+}
+
+/* Адаптив для карточек */
+@media (max-width: 600px) {
+    #progress .progress-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    #progress .progress-card {
+        padding: 16px 20px;
+    }
+    
+    #progress .progress-card h3 {
+        font-size: 14px;
+    }
+    
+    #progress .progress-card .stat-value {
+        font-size: 40px;
+    }
+}
+
+/* ============================================
+   ДОСТИЖЕНИЯ (вертикальный список)
+   ============================================ */
+
+#progress .progress-card.achievements {
+    grid-column: 1 / -1;
+}
+
+/* Контейнер достижений - вертикальный столбец */
+#progress #achievements {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+/* Теги достижений */
+#progress #achievements .achievement-tag,
+#progress #achievements > div:not(.no-achievements) {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #1a3a52;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    margin: 0;
+}
+
+/* Пустое состояние */
+#progress #achievements .no-achievements {
+    color: #999;
+    font-style: italic;
+    padding: 10px 0;
+}
+
+@media (max-width: 480px) {
+    #progress #achievements .achievement-tag,
+    #progress #achievements > div:not(.no-achievements) {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+}

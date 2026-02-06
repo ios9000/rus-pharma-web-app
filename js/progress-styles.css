@@ -1,0 +1,1526 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════════════
+ * СТИЛИ МОДУЛЯ ПРОГРЕССА КУРСАНТА
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+/* ============================================================================
+   CSS ПЕРЕМЕННЫЕ
+   ============================================================================ */
+
+:root {
+    --progress-primary: #4a90d9;
+    --progress-success: #28a745;
+    --progress-warning: #ffc107;
+    --progress-danger: #dc3545;
+    --progress-info: #17a2b8;
+    
+    --progress-bg: #1a1d23;
+    --progress-card-bg: #242830;
+    --progress-border: #3a3f4a;
+    
+    --text-primary: #ffffff;
+    --text-secondary: #a0a5b0;
+    --text-muted: #6c757d;
+    
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================================================
+   ЭКРАН ПРОГРЕССА
+   ============================================================================ */
+
+.progress-screen {
+    padding: 16px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.progress-header h1 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--progress-card-bg);
+    border: 1px solid var(--progress-border);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+    background: var(--progress-border);
+}
+
+/* ============================================================================
+   СТАТУС КУРСА
+   ============================================================================ */
+
+.course-status-card {
+    background: var(--progress-card-bg);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--progress-border);
+}
+
+.status-icon {
+    font-size: 2rem;
+}
+
+.status-info {
+    flex: 1;
+}
+
+.status-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.status-details {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.circular-progress {
+    width: 60px;
+    height: 60px;
+    background: conic-gradient(
+        var(--progress-primary) calc(var(--progress, 0) * 3.6deg),
+        var(--progress-border) 0deg
+    );
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.circular-progress::before {
+    content: '';
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    background: var(--progress-card-bg);
+    border-radius: 50%;
+}
+
+.circular-progress span {
+    position: relative;
+    z-index: 1;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ============================================================================
+   ПУТЬ ОБУЧЕНИЯ
+   ============================================================================ */
+
+.learning-path-card {
+    background: var(--progress-card-bg);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--progress-border);
+}
+
+.learning-path-card h3 {
+    margin: 0 0 16px 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.learning-path {
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    padding: 8px 0;
+    gap: 4px;
+}
+
+.path-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 60px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.path-step:not(.locked):hover {
+    transform: scale(1.05);
+}
+
+.path-step .step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--progress-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+}
+
+.path-step.completed .step-icon {
+    background: var(--progress-success);
+}
+
+.path-step.current .step-icon {
+    background: var(--progress-primary);
+    animation: pulse 2s infinite;
+}
+
+.path-step.locked .step-icon {
+    background: var(--progress-border);
+    opacity: 0.5;
+}
+
+.path-step .step-name {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.path-step .step-score {
+    font-size: 0.65rem;
+    color: var(--progress-success);
+    font-weight: 600;
+}
+
+.path-connector {
+    width: 20px;
+    height: 2px;
+    background: var(--progress-border);
+    flex-shrink: 0;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(74, 144, 217, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(74, 144, 217, 0); }
+}
+
+/* ============================================================================
+   МАТРИЦА КОМПЕТЕНЦИЙ
+   ============================================================================ */
+
+.competency-matrix-card {
+    background: var(--progress-card-bg);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--progress-border);
+}
+
+.competency-matrix-card h3 {
+    margin: 0 0 16px 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.matrix-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.toggle-btn {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: 1px solid var(--progress-border);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle-btn.active {
+    background: var(--progress-primary);
+    border-color: var(--progress-primary);
+    color: white;
+}
+
+.matrix-view {
+    display: none;
+}
+
+.matrix-view.active {
+    display: block;
+}
+
+/* Вид: Шкалы */
+.matrix-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.competency-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    transition: background 0.2s ease;
+}
+
+.competency-bar:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.competency-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 120px;
+}
+
+.competency-icon {
+    font-size: 1.2rem;
+}
+
+.competency-name {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.competency-progress {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.progress-bar-container {
+    flex: 1;
+    height: 8px;
+    background: var(--progress-border);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.progress-marker {
+    position: absolute;
+    top: -2px;
+    width: 3px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 2px;
+    transform: translateX(-50%);
+}
+
+.progress-marker.diagnostic {
+    background: var(--progress-warning);
+}
+
+.progress-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    min-width: 45px;
+    text-align: right;
+}
+
+.competency-delta {
+    font-size: 0.85rem;
+    font-weight: 600;
+    min-width: 70px;
+    text-align: right;
+}
+
+.competency-delta.delta-positive {
+    color: var(--progress-success);
+}
+
+.competency-delta.delta-neutral {
+    color: var(--progress-warning);
+}
+
+.competency-delta.delta-negative {
+    color: var(--progress-danger);
+}
+
+/* Вид: Таблица */
+.competency-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+.competency-table th,
+.competency-table td {
+    padding: 8px 6px;
+    text-align: center;
+    border-bottom: 1px solid var(--progress-border);
+}
+
+.competency-table th {
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.competency-table .competency-cell {
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.competency-table .score-cell {
+    color: var(--text-primary);
+}
+
+.competency-table .delta-cell.positive {
+    color: var(--progress-success);
+}
+
+.competency-table .delta-cell.neutral {
+    color: var(--progress-warning);
+}
+
+.competency-table .delta-cell.negative {
+    color: var(--progress-danger);
+}
+
+/* ============================================================================
+   РЕКОМЕНДАЦИИ
+   ============================================================================ */
+
+.recommendations-card {
+    background: var(--progress-card-bg);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--progress-border);
+}
+
+.recommendations-card h3 {
+    margin: 0 0 16px 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.recommendations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.recommendation-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 3px solid transparent;
+}
+
+.recommendation-item.priority-critical {
+    border-left-color: var(--progress-danger);
+    background: rgba(220, 53, 69, 0.1);
+}
+
+.recommendation-item.priority-high {
+    border-left-color: #fd7e14;
+    background: rgba(253, 126, 20, 0.1);
+}
+
+.recommendation-item.priority-medium {
+    border-left-color: var(--progress-warning);
+    background: rgba(255, 193, 7, 0.1);
+}
+
+.recommendation-item.priority-low {
+    border-left-color: var(--progress-success);
+    background: rgba(40, 167, 69, 0.1);
+}
+
+.rec-icon {
+    font-size: 1.5rem;
+}
+
+.rec-content {
+    flex: 1;
+}
+
+.rec-message {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.rec-action {
+    background: transparent;
+    border: none;
+    color: var(--progress-primary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+.rec-action:hover {
+    text-decoration: underline;
+}
+
+/* ============================================================================
+   СТАТИСТИКА
+   ============================================================================ */
+
+.statistics-card {
+    background: var(--progress-card-bg);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--progress-border);
+}
+
+.statistics-card h3 {
+    margin: 0 0 16px 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-sm);
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* ============================================================================
+   ДОСТИЖЕНИЯ
+   ============================================================================ */
+
+.achievements-card {
+    background: var(--progress-card-bg);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--progress-border);
+}
+
+.achievements-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.achievements-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.achievements-count {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.achievements-preview {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.achievement-badge {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--progress-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: transform 0.2s ease;
+}
+
+.achievement-badge.unlocked {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.achievement-badge.locked {
+    opacity: 0.4;
+    filter: grayscale(100%);
+}
+
+.achievement-badge:hover {
+    transform: scale(1.1);
+}
+
+.achievement-more {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--progress-primary);
+    border: none;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+/* ============================================================================
+   НАПОМИНАНИЯ
+   ============================================================================ */
+
+.reminders-card {
+    background: var(--progress-card-bg);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--progress-border);
+    border-left: 3px solid var(--progress-warning);
+}
+
+.reminders-card h3 {
+    margin: 0 0 16px 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.reminders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.reminder-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-sm);
+}
+
+.reminder-icon {
+    font-size: 1.3rem;
+}
+
+.reminder-content {
+    flex: 1;
+}
+
+.reminder-activity {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.reminder-competency {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.reminder-action {
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    background: var(--progress-primary);
+    border: none;
+    color: white;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+/* ============================================================================
+   ПУСТОЕ СОСТОЯНИЕ
+   ============================================================================ */
+
+.empty-state {
+    text-align: center;
+    padding: 32px 16px;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+.empty-text {
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+/* ============================================================================
+   ДЕЙСТВИЯ
+   ============================================================================ */
+
+.progress-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.btn-primary {
+    background: var(--progress-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #3a7bc8;
+}
+
+.btn-secondary {
+    background: var(--progress-border);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background: #4a4f5a;
+}
+
+.btn-large {
+    padding: 16px 32px;
+    font-size: 1.1rem;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+}
+
+/* ============================================================================
+   МОДАЛЬНЫЕ ОКНА
+   ============================================================================ */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+}
+
+.modal-content {
+    background: var(--progress-card-bg);
+    border-radius: var(--radius-lg);
+    max-width: 500px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid var(--progress-border);
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+.modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 16px;
+}
+
+/* ============================================================================
+   ЭКРАН ВЫБОРА ТЕСТА
+   ============================================================================ */
+
+.test-selector-screen {
+    padding: 16px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.test-selector-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.test-selector-header h1 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
+}
+
+.test-selector-header .subtitle {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.test-card {
+    background: var(--progress-card-bg);
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+    border: 1px solid var(--progress-border);
+    overflow: hidden;
+}
+
+.test-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+}
+
+.test-card-header .test-icon {
+    font-size: 2rem;
+}
+
+.test-card-header .test-info h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.test-card-header .test-info p {
+    margin: 4px 0 0 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.test-card-header .test-status {
+    margin-left: auto;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.test-card-body {
+    padding: 0 16px 16px;
+}
+
+.test-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.test-result {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.result-score {
+    text-align: center;
+}
+
+.result-score .score-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--progress-success);
+}
+
+.result-score .score-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    display: block;
+}
+
+.result-date {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.test-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.test-notice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(74, 144, 217, 0.1);
+    border-radius: var(--radius-sm);
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.locked-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+}
+
+/* Секции тестов */
+.sections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.section-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-sm);
+    transition: background 0.2s ease;
+}
+
+.section-item:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.section-item.locked {
+    opacity: 0.5;
+}
+
+.section-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.section-info {
+    flex: 1;
+}
+
+.section-name {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.section-meta {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.section-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-status .score {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--progress-success);
+}
+
+.sections-progress {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--progress-primary);
+}
+
+/* Быстрая практика */
+.competencies-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.competency-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.competency-checkbox input {
+    display: none;
+}
+
+.competency-checkbox:has(input:checked) {
+    background: var(--progress-primary);
+}
+
+.checkbox-icon {
+    font-size: 1.1rem;
+}
+
+.checkbox-label {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.practice-options {
+    margin-bottom: 16px;
+}
+
+.option-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.option-group label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.option-group select {
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--progress-border);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+/* ============================================================================
+   ЭКРАН ТЕСТА
+   ============================================================================ */
+
+.test-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--progress-bg);
+}
+
+.test-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    background: var(--progress-card-bg);
+    border-bottom: 1px solid var(--progress-border);
+}
+
+.test-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.test-progress {
+    flex: 1;
+    text-align: center;
+}
+
+.test-progress span {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.test-progress .progress-bar {
+    height: 4px;
+    background: var(--progress-border);
+    border-radius: 2px;
+    margin-top: 4px;
+}
+
+.test-progress .progress-fill {
+    height: 100%;
+    background: var(--progress-primary);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.test-timer {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.test-timer.warning {
+    color: var(--progress-danger);
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0.5; }
+}
+
+/* Вопрос */
+.question-container {
+    flex: 1;
+    padding: 16px;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.question-image {
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.question-image img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+}
+
+.question-text {
+    margin-bottom: 24px;
+}
+
+.question-number {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.question-text p {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.answers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.answer-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: var(--progress-card-bg);
+    border: 2px solid var(--progress-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.answer-btn:hover {
+    border-color: var(--progress-primary);
+    background: rgba(74, 144, 217, 0.1);
+}
+
+.answer-btn.selected {
+    border-color: var(--progress-primary);
+    background: rgba(74, 144, 217, 0.2);
+}
+
+.answer-letter {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--progress-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex-shrink: 0;
+}
+
+.answer-btn.selected .answer-letter {
+    background: var(--progress-primary);
+}
+
+.answer-text {
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+/* Навигация */
+.test-navigation {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: var(--progress-card-bg);
+    border-top: 1px solid var(--progress-border);
+}
+
+.test-navigation .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================================================
+   РЕЗУЛЬТАТЫ ТЕСТА
+   ============================================================================ */
+
+.test-results-screen {
+    padding: 16px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.results-header {
+    text-align: center;
+    padding: 32px 16px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 24px;
+}
+
+.results-header.success {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.2), rgba(40, 167, 69, 0.05));
+}
+
+.results-header.failed {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(220, 53, 69, 0.05));
+}
+
+.results-icon {
+    font-size: 4rem;
+    margin-bottom: 16px;
+}
+
+.results-header h1 {
+    margin: 0 0 8px 0;
+    color: var(--text-primary);
+}
+
+.results-header p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+.results-score {
+    background: var(--progress-card-bg);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid;
+}
+
+.score-circle.passed {
+    border-color: var(--progress-success);
+    background: rgba(40, 167, 69, 0.1);
+}
+
+.score-circle.failed {
+    border-color: var(--progress-danger);
+    background: rgba(220, 53, 69, 0.1);
+}
+
+.score-circle .score-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.score-circle .score-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.score-details {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+}
+
+.score-details .detail {
+    text-align: center;
+}
+
+.score-details .detail-value {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: block;
+}
+
+.score-details .detail-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* Результаты по компетенциям */
+.competency-results {
+    background: var(--progress-card-bg);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.competency-results h3 {
+    margin: 0 0 16px 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.competency-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.competency-result {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.competency-result .competency-info {
+    min-width: 100px;
+}
+
+.competency-result .competency-score {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.competency-result .score-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--progress-border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.competency-result .score-fill {
+    height: 100%;
+    border-radius: 4px;
+}
+
+.competency-result .score-text {
+    min-width: 45px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.competency-result .score-fraction {
+    min-width: 40px;
+    text-align: right;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.competency-result.good .score-fill {
+    background: var(--progress-success);
+}
+
+.competency-result.medium .score-fill {
+    background: var(--progress-warning);
+}
+
+.competency-result.low .score-fill {
+    background: var(--progress-danger);
+}
+
+/* Рекомендации в результатах */
+.result-recommendations {
+    background: var(--progress-card-bg);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.result-recommendations h3 {
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.result-recommendations.success {
+    border-left: 3px solid var(--progress-success);
+}
+
+.result-recommendations.warning {
+    border-left: 3px solid var(--progress-warning);
+}
+
+.result-recommendations p {
+    margin: 0 0 12px 0;
+    color: var(--text-secondary);
+}
+
+.weak-competencies {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.weak-competencies li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--progress-border);
+}
+
+.weak-competencies li:last-child {
+    border-bottom: none;
+}
+
+.weak-competencies .icon {
+    font-size: 1.2rem;
+}
+
+.weak-competencies .name {
+    flex: 1;
+    color: var(--text-primary);
+}
+
+.weak-competencies .sections {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* Действия результатов */
+.results-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* ============================================================================
+   АДАПТИВНОСТЬ
+   ============================================================================ */
+
+@media (max-width: 600px) {
+    .course-status-card {
+        flex-wrap: wrap;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .score-details {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .competency-table {
+        font-size: 0.7rem;
+    }
+    
+    .competency-table th,
+    .competency-table td {
+        padding: 6px 4px;
+    }
+    
+    .test-header {
+        flex-wrap: wrap;
+    }
+    
+    .test-navigation {
+        flex-wrap: wrap;
+    }
+    
+    .results-actions {
+        flex-direction: column;
+    }
+    
+    .results-actions .btn {
+        width: 100%;
+    }
+}
