@@ -48,7 +48,7 @@ const FALLBACK_QUESTIONS = [
             "Цетиризин 10мг per os",
             "Кристаллоиды 1-2л в/в"
         ],
-        "correct": 0,
+        "correct": [0, 1, 2, 4],
         "explanation": "См. материалы Модуля 3: Антигистаминные препараты",
         "competencyId": "ANTIHISTAMINES",
         "module": 3,
@@ -85,7 +85,7 @@ const FALLBACK_QUESTIONS = [
             "Водянистые выделения из носа",
             "Ломота в мышцах"
         ],
-        "correct": 0,
+        "correct": [0, 2, 4, 5],
         "explanation": "См. материалы Модуля 5: ОРВИ",
         "competencyId": "VIRAL_INFECTIONS",
         "module": 5,
@@ -238,7 +238,7 @@ const FALLBACK_QUESTIONS = [
             "САД ≤100 мм рт.ст.",
             "ЧСС >90/мин"
         ],
-        "correct": 0,
+        "correct": [0, 2, 3],
         "explanation": "См. материалы Модуля 14: Септический шок",
         "competencyId": "SEPTIC_SHOCK",
         "module": 14,
