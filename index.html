@@ -355,9 +355,9 @@
 </section>
 
         <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ИЗОБРАЖЕНИЙ -->
-        <div id="imageModal" class="modal">
-            <span class="modal-close" onclick="closeModal()">&times;</span>
-            <img id="modalImage" src="">
+        <div id="imageModal" class="modal" onclick="closeModal()">
+            <span class="modal-close">&times;</span>
+            <img id="modalImage" src="" onclick="event.stopPropagation()">
         </div>
     </div>
 

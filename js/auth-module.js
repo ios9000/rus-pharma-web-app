@@ -10,10 +10,12 @@ const AuthModule = (function() {
     // КОНФИГУРАЦИЯ
     // ========================================
     
+    const FALLBACK_API_URL = 'https://script.google.com/macros/s/AKfycbwB0oYN70vH9sMnQItBL1rSVuVxF2t90Fx5A_9wWZjR3lrfSNPcmDVZuqOC7mfsO87x/exec';
+
     const CONFIG = {
-        // URL вашего Apps Script Web App
-        API_URL: 'https://script.google.com/macros/s/AKfycbwB0oYN70vH9sMnQItBL1rSVuVxF2t90Fx5A_9wWZjR3lrfSNPcmDVZuqOC7mfsO87x/exec',
-        
+        // URL берём из глобального CONFIG (config.js), fallback на хардкод
+        API_URL: (typeof window.CONFIG !== 'undefined' && window.CONFIG.API_URL) ? window.CONFIG.API_URL : FALLBACK_API_URL,
+
         // Ключи localStorage
         STORAGE_KEYS: {
             CADET_ID: 'auth_cadet_id',

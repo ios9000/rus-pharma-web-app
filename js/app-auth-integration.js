@@ -13,13 +13,15 @@
     // КОНФИГУРАЦИЯ
     // ========================================
     
-    const CONFIG = {
-        // URL вашего Apps Script Web App
-        API_URL: 'https://script.google.com/macros/s/AKfycbwB0oYN70vH9sMnQItBL1rSVuVxF2t90Fx5A_9wWZjR3lrfSNPcmDVZuqOC7mfsO87x/exec',
-        
+    const FALLBACK_API_URL = 'https://script.google.com/macros/s/AKfycbwB0oYN70vH9sMnQItBL1rSVuVxF2t90Fx5A_9wWZjR3lrfSNPcmDVZuqOC7mfsO87x/exec';
+
+    const LOCAL_CONFIG = {
+        // URL берём из глобального CONFIG (config.js), fallback на хардкод
+        API_URL: (typeof window.CONFIG !== 'undefined' && window.LOCAL_CONFIG.API_URL) ? window.LOCAL_CONFIG.API_URL : FALLBACK_API_URL,
+
         // Показывать ли авторизацию при старте
         REQUIRE_AUTH: true,
-        
+
         // Автоматическая синхронизация
         AUTO_SYNC: true
     };
@@ -33,11 +35,11 @@
         
         // Устанавливаем URL API
         if (typeof AuthModule !== 'undefined') {
-            AuthModule.setApiUrl(CONFIG.API_URL);
+            AuthModule.setApiUrl(LOCAL_CONFIG.API_URL);
         }
         
         // Проверяем, требуется ли авторизация
-        if (!CONFIG.REQUIRE_AUTH) {
+        if (!LOCAL_CONFIG.REQUIRE_AUTH) {
             console.log('⚠️ Авторизация отключена в конфигурации');
             initApp(null);
             return;
@@ -62,7 +64,7 @@
             updateUIWithCadetData(cadet);
             
             // Инициализируем синхронизацию
-            if (CONFIG.AUTO_SYNC && typeof SyncModule !== 'undefined') {
+            if (LOCAL_CONFIG.AUTO_SYNC && typeof SyncModule !== 'undefined') {
                 initSyncModule(cadet);
             }
             
@@ -293,15 +295,17 @@
 
     function initApp(cadet) {
         console.log('📱 Инициализация основного приложения');
-        
-        // Здесь можно добавить дополнительную логику инициализации
-        // которая зависит от авторизации
-        
+
+        // Вызываем главную инициализацию из app.js (загрузка данных, навигация)
+        if (typeof initMainApp === 'function') {
+            initMainApp();
+        }
+
         // Обновляем прогресс если функция есть
         if (typeof updateProgress === 'function') {
             updateProgress();
         }
-        
+
         // Обновляем время последнего обновления
         const lastUpdateEl = document.getElementById('lastUpdate');
         if (lastUpdateEl) {
@@ -315,7 +319,7 @@
     // ========================================
 
     window.AppAuth = {
-        CONFIG,
+        CONFIG: LOCAL_CONFIG,
         showAuthUI: () => AuthUI.show(),
         logout: () => AuthModule.logout(true),
         syncNow: () => SyncModule?.syncNow(),

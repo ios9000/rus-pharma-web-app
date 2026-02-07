@@ -444,6 +444,10 @@ const SyncModule = (function() {
     }
 
     function getApiUrl() {
+        // Единый источник — глобальный CONFIG (config.js), fallback на хардкод
+        if (typeof window.CONFIG !== 'undefined' && window.CONFIG.API_URL) {
+            return window.CONFIG.API_URL;
+        }
         return 'https://script.google.com/macros/s/AKfycbwB0oYN70vH9sMnQItBL1rSVuVxF2t90Fx5A_9wWZjR3lrfSNPcmDVZuqOC7mfsO87x/exec';
     }
 

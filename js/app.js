@@ -1,12 +1,13 @@
 // js/app.js
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Инициализация при загрузке страницы
-    loadData(); 
-    
+// Единая точка входа — вызывается из app-auth-integration.js после авторизации
+function initMainApp() {
+    // Загрузка данных
+    loadData();
+
     // Инициализация навигации (показываем меню)
     showSection('menu');
-});
+}
 
 // Переключение разделов меню
 function showSection(sectionId) {
@@ -57,6 +58,28 @@ function showSection(sectionId) {
         if (typeof updateProgress === 'function') {
             updateProgress();
         }
+    }
+}
+
+// ============================================
+// МОДАЛЬНОЕ ОКНО ИЗОБРАЖЕНИЙ
+// ============================================
+
+function openImageModal(src) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    if (modal && modalImg) {
+        modalImg.src = src;
+        modal.classList.add('active');
+    }
+}
+
+function closeModal() {
+    const modal = document.getElementById('imageModal');
+    if (modal) {
+        modal.classList.remove('active');
+        const modalImg = document.getElementById('modalImage');
+        if (modalImg) modalImg.src = '';
     }
 }
 
