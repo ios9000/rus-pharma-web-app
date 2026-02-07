@@ -1,8 +1,8 @@
 // ============================================
-// МОДУЛЬ ТЕСТОВ  v3.0 (FINAL UX VERSION + RESET)
+// МОДУЛЬ ТЕСТОВ  v3.1 (MULTIPLE CHOICE SUPPORT)
 // С кнопкой "Показать пояснение"
 // С интеграцией системы компетенций
-// Новая таблица компетенций: модель 8 - Адреналин; Модуль 13 - Анальгезия
+// Поддержка single-choice (radio) и multiple-choice (checkbox)
 // ============================================
 
 let currentTestQuestion = 0;
@@ -13,8 +13,35 @@ let currentTestType = 'DIAGNOSTIC'; // DIAGNOSTIC, SECTION_1, SECTION_2, SECTION
 // Результаты по компетенциям
 let competencyResults = {};
 
+// Выбранные ответы для multiple-choice
+let selectedAnswers = new Set();
+
+// ============================================
+// ОПРЕДЕЛЕНИЕ ТИПА ВОПРОСА
+// ============================================
+
+/**
+ * Проверяет, является ли вопрос multiple-choice.
+ * Определение из данных: если correct — массив, это multiple-choice.
+ */
+function isMultipleChoice(question) {
+    return Array.isArray(question.correct);
+}
+
+/**
+ * Нормализует поле correct в массив.
+ * Для single-choice: [2] → массив из одного элемента.
+ * Для multiple-choice: [0, 1, 2, 4] → уже массив.
+ */
+function getCorrectAnswers(question) {
+    if (Array.isArray(question.correct)) {
+        return question.correct;
+    }
+    return [question.correct];
+}
+
 function initTestModule() {
-    console.log("Модуль тестов v3.0 загружен");
+    console.log("Модуль тестов v3.1 загружен (multiple-choice support)");
     resetTestState();
     renderTestQuestion();
 }
@@ -25,6 +52,7 @@ function resetTestState() {
     testScore = 0;
     testResults = [];
     competencyResults = {};
+    selectedAnswers = new Set();
 }
 
 // Кнопка "В меню" (Сброс + Выход)
@@ -121,7 +149,22 @@ function renderTestQuestion() {
         container.appendChild(img);
     }
 
-    // Д. Ответы
+    // Д. Подсказка типа вопроса
+    const multiChoice = isMultipleChoice(q);
+    const hintDiv = document.createElement('div');
+    hintDiv.className = 'question-type-hint';
+    if (multiChoice) {
+        const correctCount = q.correct.length;
+        hintDiv.innerHTML = `<span class="hint-icon">☑</span> Выберите все правильные ответы (${correctCount})`;
+        hintDiv.style.cssText = 'padding: 8px 14px; margin-bottom: 12px; background: #e3f2fd; color: #1565c0; border-radius: 8px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 6px;';
+    } else {
+        hintDiv.innerHTML = `<span class="hint-icon">○</span> Выберите один ответ`;
+        hintDiv.style.cssText = 'padding: 8px 14px; margin-bottom: 12px; background: #f5f5f5; color: #666; border-radius: 8px; font-size: 14px; display: flex; align-items: center; gap: 6px;';
+    }
+    container.appendChild(hintDiv);
+
+    // Е. Ответы
+    selectedAnswers = new Set();
     const answersDiv = document.createElement('div');
     answersDiv.id = 'answersContainer';
     answersDiv.style.cssText = 'display: flex; flex-direction: column; gap: 12px;';
@@ -130,8 +173,14 @@ function renderTestQuestion() {
     q.answers.forEach((ans, index) => {
         const btn = document.createElement('button');
         btn.className = 'btn answer-btn';
-        btn.innerText = ans;
-        
+        btn.dataset.index = index;
+
+        if (multiChoice) {
+            btn.innerHTML = `<span class="answer-checkbox">☐</span> ${ans}`;
+        } else {
+            btn.innerHTML = `<span class="answer-radio">○</span> ${ans}`;
+        }
+
         btn.style.cssText = `
             width: 100%;
             padding: 14px 16px;
@@ -142,8 +191,11 @@ function renderTestQuestion() {
             font-size: 16px;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         `;
-        
+
         btn.onmouseover = () => {
             if (!btn.disabled) {
                 btn.style.borderColor = '#1a3a52';
@@ -151,17 +203,46 @@ function renderTestQuestion() {
             }
         };
         btn.onmouseout = () => {
-            if (!btn.disabled) {
+            if (!btn.disabled && !selectedAnswers.has(index)) {
                 btn.style.borderColor = '#e0e0e0';
                 btn.style.background = 'white';
             }
         };
-        
-        btn.onclick = () => checkTestAnswer(index, q, container);
+
+        if (multiChoice) {
+            btn.onclick = () => toggleMultipleAnswer(index, btn, q);
+        } else {
+            btn.onclick = () => checkTestAnswer(index, q, container);
+        }
         answersDiv.appendChild(btn);
     });
 
-    // Е. Кнопка "Показать пояснение" (скрыта до ответа)
+    // Ж. Кнопка "Проверить" для multiple-choice (скрыта для single)
+    if (multiChoice) {
+        const checkBtn = document.createElement('button');
+        checkBtn.id = 'checkMultipleBtn';
+        checkBtn.innerText = 'Проверить ответ';
+        checkBtn.style.cssText = `
+            display: block;
+            width: 100%;
+            margin-top: 15px;
+            padding: 14px;
+            background: #1565c0;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0.5;
+            pointer-events: none;
+            transition: all 0.2s ease;
+        `;
+        checkBtn.onclick = () => checkMultipleAnswer(q, container);
+        container.appendChild(checkBtn);
+    }
+
+    // З. Кнопка "Показать пояснение" (скрыта до ответа)
     const hasExplanation = q.explanation && q.explanation.trim() !== '';
     
     const showExplanationBtn = document.createElement('button');
@@ -184,7 +265,7 @@ function renderTestQuestion() {
     showExplanationBtn.onclick = () => toggleExplanation();
     container.appendChild(showExplanationBtn);
 
-    // Ж. Блок пояснения (скрыт)
+    // И. Блок пояснения (скрыт)
     const explanationDiv = document.createElement('div');
     explanationDiv.id = 'explanationBlock';
     explanationDiv.style.cssText = `
@@ -204,7 +285,7 @@ function renderTestQuestion() {
     }
     container.appendChild(explanationDiv);
 
-    // З. Кнопка "Далее"
+    // К. Кнопка "Далее"
     const nextBtn = document.createElement('button');
     nextBtn.id = 'nextQuestionBtn';
     nextBtn.innerText = 'Далее →';
@@ -304,7 +385,155 @@ function toggleExplanation() {
 }
 
 // ============================================
-// ПРОВЕРКА ОТВЕТА
+// MULTIPLE-CHOICE: ПЕРЕКЛЮЧЕНИЕ ОТВЕТА
+// ============================================
+
+function toggleMultipleAnswer(index, btn, question) {
+    if (selectedAnswers.has(index)) {
+        selectedAnswers.delete(index);
+        btn.style.borderColor = '#e0e0e0';
+        btn.style.background = 'white';
+        btn.querySelector('.answer-checkbox').textContent = '☐';
+    } else {
+        selectedAnswers.add(index);
+        btn.style.borderColor = '#1565c0';
+        btn.style.background = '#e3f2fd';
+        btn.querySelector('.answer-checkbox').textContent = '☑';
+    }
+
+    // Активируем/деактивируем кнопку "Проверить"
+    const checkBtn = document.getElementById('checkMultipleBtn');
+    if (checkBtn) {
+        if (selectedAnswers.size > 0) {
+            checkBtn.style.opacity = '1';
+            checkBtn.style.pointerEvents = 'auto';
+        } else {
+            checkBtn.style.opacity = '0.5';
+            checkBtn.style.pointerEvents = 'none';
+        }
+    }
+}
+
+// ============================================
+// MULTIPLE-CHOICE: ПРОВЕРКА ОТВЕТА
+// ============================================
+
+function checkMultipleAnswer(question, container) {
+    const correctSet = new Set(question.correct);
+    const btns = container.querySelectorAll('.answer-btn');
+
+    // Подсчитываем результат
+    let correctSelected = 0;   // Правильные, которые выбраны
+    let wrongSelected = 0;     // Неправильные, которые выбраны
+
+    selectedAnswers.forEach(idx => {
+        if (correctSet.has(idx)) {
+            correctSelected++;
+        } else {
+            wrongSelected++;
+        }
+    });
+
+    const totalCorrect = correctSet.size;
+    const isFullyCorrect = (correctSelected === totalCorrect && wrongSelected === 0);
+    const isPartiallyCorrect = (correctSelected > 0 && wrongSelected === 0 && correctSelected < totalCorrect);
+
+    // Подсветка ответов
+    btns.forEach((btn, index) => {
+        btn.disabled = true;
+        btn.style.cursor = 'default';
+        btn.onmouseover = null;
+        btn.onmouseout = null;
+
+        if (correctSet.has(index)) {
+            // Правильный ответ
+            btn.style.background = '#d4edda';
+            btn.style.borderColor = '#28a745';
+            btn.querySelector('.answer-checkbox').textContent = '✅';
+        } else if (selectedAnswers.has(index)) {
+            // Неправильный выбранный
+            btn.style.background = '#f8d7da';
+            btn.style.borderColor = '#dc3545';
+            btn.querySelector('.answer-checkbox').textContent = '❌';
+        } else {
+            // Не выбранный, не правильный
+            btn.style.opacity = '0.6';
+        }
+    });
+
+    // Скрываем кнопку "Проверить"
+    const checkBtn = document.getElementById('checkMultipleBtn');
+    if (checkBtn) checkBtn.style.display = 'none';
+
+    // Показываем обратную связь
+    const feedbackDiv = document.createElement('div');
+    feedbackDiv.style.cssText = 'padding: 12px 16px; border-radius: 10px; margin-top: 12px; font-size: 15px; font-weight: 500;';
+
+    if (isFullyCorrect) {
+        feedbackDiv.style.background = '#d4edda';
+        feedbackDiv.style.color = '#155724';
+        feedbackDiv.style.borderLeft = '4px solid #28a745';
+        feedbackDiv.textContent = '✅ Верно! Все ответы правильные.';
+    } else if (isPartiallyCorrect) {
+        feedbackDiv.style.background = '#fff3cd';
+        feedbackDiv.style.color = '#856404';
+        feedbackDiv.style.borderLeft = '4px solid #ffc107';
+        feedbackDiv.textContent = `⚠️ Частично верно. Вы выбрали ${correctSelected} из ${totalCorrect} правильных ответов.`;
+    } else {
+        feedbackDiv.style.background = '#f8d7da';
+        feedbackDiv.style.color = '#721c24';
+        feedbackDiv.style.borderLeft = '4px solid #dc3545';
+        if (wrongSelected > 0 && correctSelected > 0) {
+            feedbackDiv.textContent = `❌ Неверно. Среди выбранных есть ошибочные варианты. Правильных ответов: ${totalCorrect}.`;
+        } else if (wrongSelected > 0) {
+            feedbackDiv.textContent = `❌ Неверно. Правильных ответов: ${totalCorrect}.`;
+        } else {
+            feedbackDiv.textContent = `❌ Неверно.`;
+        }
+    }
+
+    // Вставляем feedback после answersContainer
+    const answersContainer = document.getElementById('answersContainer');
+    if (answersContainer) {
+        answersContainer.parentNode.insertBefore(feedbackDiv, answersContainer.nextSibling);
+    }
+
+    // Обновляем счётчик (только полностью правильный ответ засчитывается)
+    if (isFullyCorrect) testScore++;
+
+    // Сохраняем результат с компетенцией
+    const competency = question.competency || 'UNKNOWN';
+
+    testResults.push({
+        questionId: question.id,
+        competency: competency,
+        isCorrect: isFullyCorrect
+    });
+
+    // Обновляем статистику по компетенциям
+    if (!competencyResults[competency]) {
+        competencyResults[competency] = { correct: 0, total: 0 };
+    }
+    competencyResults[competency].total++;
+    if (isFullyCorrect) {
+        competencyResults[competency].correct++;
+    }
+
+    // Показываем кнопку пояснения
+    const showExplanationBtn = document.getElementById('showExplanationBtn');
+    if (showExplanationBtn && showExplanationBtn.dataset.hasExplanation === 'true') {
+        showExplanationBtn.style.display = 'block';
+    }
+
+    // Показываем кнопку "Далее"
+    const nextBtn = document.getElementById('nextQuestionBtn');
+    if (nextBtn) {
+        nextBtn.style.display = 'block';
+    }
+}
+
+// ============================================
+// ПРОВЕРКА ОТВЕТА (SINGLE-CHOICE)
 // ============================================
 
 function checkTestAnswer(selectedIndex, question, container) {
@@ -315,15 +544,18 @@ function checkTestAnswer(selectedIndex, question, container) {
     btns.forEach((btn, index) => {
         btn.disabled = true;
         btn.style.cursor = 'default';
-        
+        btn.onmouseover = null;
+        btn.onmouseout = null;
+
+        const radio = btn.querySelector('.answer-radio');
         if (index === question.correct) {
             btn.style.background = '#d4edda';
             btn.style.borderColor = '#28a745';
-            btn.innerHTML += ' ✅';
+            if (radio) radio.textContent = '✅';
         } else if (index === selectedIndex && !isCorrect) {
             btn.style.background = '#f8d7da';
             btn.style.borderColor = '#dc3545';
-            btn.innerHTML += ' ❌';
+            if (radio) radio.textContent = '❌';
         } else {
             btn.style.opacity = '0.6';
         }
