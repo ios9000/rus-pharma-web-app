@@ -18,6 +18,7 @@ async function loadData() {
         const cached = loadFromCache();
         if (cached) {
             appData = cached;
+            normalizeQuestions();
             updateSyncStatus('✓ Из кэша');
             showLoading(false);
             initModules();
@@ -45,16 +46,17 @@ async function loadData() {
 // Загрузка свежих данных с сервера
 async function fetchFreshData() {
     updateSyncStatus('🔄 Загрузка...');
-    
+
     const response = await fetch(`${CONFIG.API_URL}?action=getAll`);
     const data = await response.json();
-    
+
     if (data.error) {
         throw new Error(data.error);
     }
-    
+
     appData = data;
-    saveToCache(data);
+    normalizeQuestions();
+    saveToCache(appData);
     updateSyncStatus('✓ Обновлено');
     document.getElementById('lastUpdate').textContent = new Date().toLocaleString('ru');
 }
@@ -80,6 +82,28 @@ function loadFromCache() {
     }
     
     return data;
+}
+
+// Нормализация поля correct в вопросах.
+// Google Sheets API может отправить "0,2,3" как строку —
+// нужно разбить в массив чисел для multiple-choice.
+function normalizeQuestions() {
+    if (!appData.questions) return;
+
+    appData.questions.forEach(q => {
+        if (q.correct === undefined || q.correct === null) return;
+
+        if (typeof q.correct === 'string') {
+            if (q.correct.includes(',')) {
+                // "0,2,3" → [0, 2, 3]
+                q.correct = q.correct.split(',').map(s => Number(s.trim()));
+            } else {
+                // "2" → 2
+                q.correct = Number(q.correct);
+            }
+        }
+        // Number или Array — оставляем как есть
+    });
 }
 
 // Резервные данные (встроенные в приложение)
