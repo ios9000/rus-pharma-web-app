@@ -265,7 +265,7 @@ const COMPETENCY_BLOCKS = {
         name: 'Фармакология',
         icon: '💊',
         color: '#3498db',
-        competencies: ['ANTIBIOTICS', 'ANTIHISTAMINES', 'NSAID', 'GLUCOCORTICOIDS', 'ANTIDOTES', 'ANALGESIA', 'INFUSION_THERAPY', 'ADRENALINE', 'SPASMOLYTICS']
+        competencies: ['ANTIBIOTICS', 'ANTIHISTAMINES', 'NSAID', 'GLUCOCORTICOIDS', 'ANTIDOTES', 'ANALGESIA', 'INFUSION_THERAPY', 'ADRENALINE', 'SPASMOLITICA']
     },
     INFECTIONS: {
         name: 'Инфекции',
