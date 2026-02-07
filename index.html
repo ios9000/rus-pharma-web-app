@@ -379,7 +379,13 @@
     <script src="js/sync-module.js"></script>
     <script src="js/auth-ui.js"></script>
     <script src="js/app-auth-integration.js"></script>
-    
+
+    <!-- Регистрация Service Worker -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js');
+    }
+    </script>
 </body>
 
 
