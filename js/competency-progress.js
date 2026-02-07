@@ -92,7 +92,7 @@ const CadetProgress = (function() {
     function initializeProgressMatrix() {
         const matrix = {};
         
-        for (const competencyId of Object.keys(COMPETENCIES)) {
+        for (const competencyId of Object.keys(COMPETENCIES_CONFIG)) {
             matrix[competencyId] = {
                 diagnostic: null,
                 sections: {},
@@ -397,7 +397,7 @@ const CadetProgress = (function() {
         const matrix = currentProfile.progressMatrix;
         
         for (const [competencyId, progress] of Object.entries(matrix)) {
-            const competency = COMPETENCIES[competencyId];
+            const competency = COMPETENCIES_CONFIG[competencyId];
             const diagnostic = progress.diagnostic;
             const latest = progress.latest;
             const delta = progress.delta;
@@ -793,8 +793,8 @@ const CadetProgress = (function() {
             
             // Матрица компетенций
             competencyMatrix: Object.entries(currentProfile.progressMatrix).map(([id, data]) => ({
-                competency: COMPETENCIES[id].name,
-                icon: COMPETENCIES[id].icon,
+                competency: COMPETENCIES_CONFIG[id].name,
+                icon: COMPETENCIES_CONFIG[id].icon,
                 diagnostic: data.diagnostic,
                 final: data.final || data.latest,
                 delta: data.delta,
@@ -846,7 +846,7 @@ const CadetProgress = (function() {
         const rows = [headers.join(',')];
         
         for (const [id, data] of Object.entries(currentProfile.progressMatrix)) {
-            const competency = COMPETENCIES[id];
+            const competency = COMPETENCIES_CONFIG[id];
             const row = [
                 competency.name,
                 data.diagnostic ?? '-',

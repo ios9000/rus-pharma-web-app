@@ -206,7 +206,7 @@ const ProgressMatrixUI = (function() {
      * Шкала компетенции
      */
     function renderCompetencyBar(competencyId, data) {
-        const competency = COMPETENCIES[competencyId];
+        const competency = COMPETENCIES_CONFIG[competencyId];
         const currentScore = data.final || data.latest || 0;
         const delta = data.delta || 0;
         
@@ -256,7 +256,7 @@ const ProgressMatrixUI = (function() {
                 </thead>
                 <tbody>
                     ${Object.entries(matrix).map(([id, data]) => {
-                        const competency = COMPETENCIES[id];
+                        const competency = COMPETENCIES_CONFIG[id];
                         const delta = data.delta || 0;
                         const deltaClass = delta >= 15 ? 'positive' : (delta < 5 ? 'negative' : 'neutral');
                         const deltaIcon = delta >= 15 ? '✅' : (delta < 5 ? '🔴' : '⚠️');
@@ -420,7 +420,7 @@ const ProgressMatrixUI = (function() {
                 <h3>🔔 Напоминания</h3>
                 <div class="reminders-list">
                     ${reminders.slice(0, 3).map(reminder => {
-                        const competency = COMPETENCIES[reminder.competency];
+                        const competency = COMPETENCIES_CONFIG[reminder.competency];
                         return `
                             <div class="reminder-item">
                                 <div class="reminder-icon">${competency?.icon || '📌'}</div>
@@ -581,7 +581,7 @@ const ProgressMatrixUI = (function() {
      * Показать детали компетенции
      */
     function showCompetencyDetails(competencyId) {
-        const competency = COMPETENCIES[competencyId];
+        const competency = COMPETENCIES_CONFIG[competencyId];
         const matrix = CadetProgress.getProgressMatrix();
         const data = matrix[competencyId];
         

@@ -270,7 +270,7 @@ const TestSelector = (function() {
                 
                 <div class="test-card-body">
                     <div class="competencies-selector">
-                        ${Object.entries(COMPETENCIES).map(([id, comp]) => `
+                        ${Object.entries(COMPETENCIES_CONFIG).map(([id, comp]) => `
                             <label class="competency-checkbox">
                                 <input type="checkbox" value="${id}" checked>
                                 <span class="checkbox-icon">${comp.icon}</span>
@@ -711,7 +711,7 @@ const TestSelector = (function() {
                     <h3>📊 Результаты по компетенциям</h3>
                     <div class="competency-list">
                         ${Object.entries(result.competencyScores).map(([compId, scores]) => {
-                            const competency = COMPETENCIES[compId] || { name: compId, icon: '📌', color: '#666' };
+                            const competency = COMPETENCIES_CONFIG[compId] || { name: compId, icon: '📌', color: '#666' };
                             const scoreClass = scores.score >= 70 ? 'good' : (scores.score >= 50 ? 'medium' : 'low');
                             
                             return `
@@ -760,7 +760,7 @@ const TestSelector = (function() {
     function renderResultRecommendations(result) {
         const weakCompetencies = Object.entries(result.competencyScores)
             .filter(([_, scores]) => scores.score < 60)
-            .map(([compId, _]) => COMPETENCIES[compId])
+            .map(([compId, _]) => COMPETENCIES_CONFIG[compId])
             .filter(Boolean);
 
         if (weakCompetencies.length === 0) {
