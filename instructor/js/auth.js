@@ -26,7 +26,7 @@ const Auth = (() => {
         setLoading(true);
         hideError();
 
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
             email,
             password,
         });
@@ -40,7 +40,7 @@ const Auth = (() => {
         // Verify instructor role
         const role = data.user?.user_metadata?.role;
         if (role !== 'instructor') {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             showError('Access denied: instructor role required.');
             setLoading(false);
             return;
@@ -52,13 +52,13 @@ const Auth = (() => {
 
     // --- Logout ---
     async function logout() {
-        await supabase.auth.signOut();
+        await supabaseClient.auth.signOut();
         showLogin();
     }
 
     // --- Session check on page load ---
     async function checkSession() {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session } } = await supabaseClient.auth.getSession();
 
         if (!session) {
             showLogin();
@@ -67,7 +67,7 @@ const Auth = (() => {
 
         const role = session.user?.user_metadata?.role;
         if (role !== 'instructor') {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             showLogin();
             return;
         }
