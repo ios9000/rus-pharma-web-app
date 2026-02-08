@@ -82,6 +82,20 @@
                     <span class="nav-item-icon">&#9883;</span>
                     Препараты
                 </button>
+
+                <div class="nav-section-label">Управление</div>
+                <button class="nav-item" data-section="groups">
+                    <span class="nav-item-icon">&#9733;</span>
+                    Группы
+                </button>
+                <button class="nav-item" data-section="cadets">
+                    <span class="nav-item-icon">&#9823;</span>
+                    Курсанты
+                </button>
+                <button class="nav-item" data-section="instructors">
+                    <span class="nav-item-icon">&#9670;</span>
+                    Инструкторы
+                </button>
             </div>
 
             <div class="sidebar-footer">
@@ -116,6 +130,18 @@
                     <div class="overview-card">
                         <h3>Компетенции</h3>
                         <div class="overview-value" id="stat-competencies">&mdash;</div>
+                    </div>
+                    <div class="overview-card">
+                        <h3>Группы</h3>
+                        <div class="overview-value" id="stat-groups">&mdash;</div>
+                    </div>
+                    <div class="overview-card">
+                        <h3>Курсанты</h3>
+                        <div class="overview-value" id="stat-cadets">&mdash;</div>
+                    </div>
+                    <div class="overview-card">
+                        <h3>Инструкторы</h3>
+                        <div class="overview-value" id="stat-instructors">&mdash;</div>
                     </div>
                 </div>
             </div>
@@ -154,6 +180,49 @@
                 </div>
 
                 <div id="drugs-list"></div>
+            </div>
+
+            <!-- Groups section -->
+            <div id="section-groups" class="section">
+                <div class="page-header">
+                    <h1>Группы</h1>
+                    <p>Управление учебными группами</p>
+                </div>
+                <div class="section-toolbar">
+                    <span class="q-count">Групп: <span id="g-count">0</span></span>
+                    <button id="btn-add-group" class="btn-primary">+ Создать группу</button>
+                </div>
+                <div id="groups-list"></div>
+            </div>
+
+            <!-- Cadets section -->
+            <div id="section-cadets" class="section">
+                <div class="page-header">
+                    <h1>Курсанты</h1>
+                    <p>Управление курсантами</p>
+                </div>
+                <div class="section-toolbar">
+                    <input type="text" id="c-search" class="search-input" placeholder="Поиск по имени...">
+                    <select id="c-filter-group" class="filter-select">
+                        <option value="">Все группы</option>
+                    </select>
+                    <span class="q-count">Курсантов: <span id="c-count">0</span></span>
+                    <button id="btn-add-cadet" class="btn-primary">+ Добавить курсанта</button>
+                </div>
+                <div id="cadets-list"></div>
+            </div>
+
+            <!-- Instructors section -->
+            <div id="section-instructors" class="section">
+                <div class="page-header">
+                    <h1>Инструкторы</h1>
+                    <p>Реестр инструкторов</p>
+                </div>
+                <div class="section-toolbar">
+                    <span class="q-count">Инструкторов: <span id="i-count">0</span></span>
+                    <button id="btn-add-instructor" class="btn-primary">+ Добавить</button>
+                </div>
+                <div id="instructors-list"></div>
             </div>
 
         </main>
@@ -310,6 +379,129 @@
         </div>
     </div>
 
+    <!-- ======================== GROUP FORM MODAL ======================== -->
+    <div id="group-modal" class="modal">
+        <div id="group-modal-overlay" class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="group-modal-title">Новая группа</h2>
+                <button id="btn-close-group-modal" class="btn-close-modal" aria-label="Close">&#10005;</button>
+            </div>
+            <div id="group-form-error" class="form-error"></div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="gf-code">Код группы</label>
+                    <div class="input-with-btn">
+                        <input type="text" id="gf-code" maxlength="6" placeholder="XXXXXX">
+                        <button type="button" id="btn-regen-code" class="btn-sm" title="Сгенерировать новый">&#8634;</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="gf-name">Название *</label>
+                    <input type="text" id="gf-name" placeholder="Например: Группа 1-А">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="gf-instructor">Инструктор</label>
+                    <input type="text" id="gf-instructor" placeholder="ФИО инструктора">
+                </div>
+                <div class="form-group">
+                    <label for="gf-max-cadets">Макс. курсантов</label>
+                    <input type="number" id="gf-max-cadets" value="30" min="1" max="100">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="gf-active" checked> Группа активна
+                </label>
+            </div>
+            <div class="form-footer">
+                <button type="button" class="btn-cancel" onclick="document.getElementById('btn-close-group-modal').click()">Отмена</button>
+                <button type="button" class="btn-primary" id="btn-save-group">Создать группу</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== CADET FORM MODAL ======================== -->
+    <div id="cadet-modal" class="modal">
+        <div id="cadet-modal-overlay" class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="cadet-modal-title">Новый курсант</h2>
+                <button id="btn-close-cadet-modal" class="btn-close-modal" aria-label="Close">&#10005;</button>
+            </div>
+            <div id="cadet-form-error" class="form-error"></div>
+            <div class="form-group">
+                <label for="cf-fullname">ФИО *</label>
+                <input type="text" id="cf-fullname" placeholder="Иванов Иван Иванович">
+            </div>
+            <div class="form-group">
+                <label for="cf-group">Группа</label>
+                <select id="cf-group"></select>
+            </div>
+            <div class="form-group">
+                <label for="cf-pin">PIN-код</label>
+                <div class="input-with-btn">
+                    <input type="text" id="cf-pin" maxlength="4" pattern="[0-9]{4}" placeholder="0000">
+                    <button type="button" id="btn-regen-pin" class="btn-sm" title="Сгенерировать новый">&#8634;</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="cf-active" checked> Активен
+                </label>
+            </div>
+            <div class="form-footer">
+                <button type="button" class="btn-cancel" onclick="document.getElementById('btn-close-cadet-modal').click()">Отмена</button>
+                <button type="button" class="btn-primary" id="btn-save-cadet">Добавить курсанта</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== CADET CONFIRM DELETE ======================== -->
+    <div id="cadet-confirm-modal" class="modal confirm-modal">
+        <div id="cadet-confirm-overlay" class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="confirm-icon">&#9888;</div>
+            <h3>Удалить курсанта?</h3>
+            <p class="confirm-preview" id="cadet-confirm-text"></p>
+            <div class="confirm-actions">
+                <button type="button" class="btn-cancel" id="btn-cadet-confirm-no">Отмена</button>
+                <button type="button" class="btn-danger" id="btn-cadet-confirm-yes">Удалить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== INSTRUCTOR FORM MODAL ======================== -->
+    <div id="instructor-modal" class="modal">
+        <div id="instructor-modal-overlay" class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="instructor-modal-title">Добавить инструктора</h2>
+                <button id="btn-close-instructor-modal" class="btn-close-modal" aria-label="Close">&#10005;</button>
+            </div>
+            <div id="instructor-form-error" class="form-error"></div>
+            <div class="form-group">
+                <label for="if-fullname">ФИО *</label>
+                <input type="text" id="if-fullname" placeholder="Петров Пётр Петрович">
+            </div>
+            <div class="form-group">
+                <label for="if-email">Email *</label>
+                <input type="email" id="if-email" placeholder="instructor@example.com">
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="if-active" checked> Активен
+                </label>
+            </div>
+            <div class="form-footer">
+                <button type="button" class="btn-cancel" onclick="document.getElementById('btn-close-instructor-modal').click()">Отмена</button>
+                <button type="button" class="btn-primary" id="btn-save-instructor">Добавить</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div id="toast" class="toast"></div>
 
@@ -322,6 +514,9 @@
     <script src="js/image-upload.js"></script>
     <script src="js/questions.js"></script>
     <script src="js/drugs.js"></script>
+    <script src="js/groups.js"></script>
+    <script src="js/cadets.js"></script>
+    <script src="js/instructors.js"></script>
     <script src="js/app.js"></script>
 
 </body>

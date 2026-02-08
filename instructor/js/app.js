@@ -6,6 +6,9 @@ const App = (() => {
 
     let questionsReady = false;
     let drugsReady = false;
+    let groupsReady = false;
+    let cadetsReady = false;
+    let instructorsReady = false;
 
     function init() {
         if (initialized) return;
@@ -52,6 +55,18 @@ const App = (() => {
             drugsReady = true;
             Drugs.init();
         }
+        if (sectionId === 'groups' && !groupsReady) {
+            groupsReady = true;
+            Groups.init();
+        }
+        if (sectionId === 'cadets') {
+            if (!groupsReady) { groupsReady = true; Groups.init(); }
+            if (!cadetsReady) { cadetsReady = true; Cadets.init(); }
+        }
+        if (sectionId === 'instructors' && !instructorsReady) {
+            instructorsReady = true;
+            Instructors.init();
+        }
 
         // Close mobile sidebar on navigation
         closeMobileMenu();
@@ -94,19 +109,28 @@ const App = (() => {
 
     // --- Overview stats ---
     async function loadOverviewStats() {
-        const [qRes, dRes, cRes] = await Promise.all([
+        const [qRes, dRes, cRes, gRes, cadRes, iRes] = await Promise.all([
             supabaseClient.from('questions').select('id', { count: 'exact', head: true }),
             supabaseClient.from('drugs').select('id', { count: 'exact', head: true }),
             supabaseClient.from('competencies').select('id', { count: 'exact', head: true }),
+            supabaseClient.from('groups').select('code', { count: 'exact', head: true }),
+            supabaseClient.from('cadets').select('id', { count: 'exact', head: true }),
+            supabaseClient.from('instructors').select('id', { count: 'exact', head: true }),
         ]);
 
-        const qEl = document.getElementById('stat-questions');
-        const dEl = document.getElementById('stat-drugs');
-        const cEl = document.getElementById('stat-competencies');
+        const stats = {
+            'stat-questions': qRes.count,
+            'stat-drugs': dRes.count,
+            'stat-competencies': cRes.count,
+            'stat-groups': gRes.count,
+            'stat-cadets': cadRes.count,
+            'stat-instructors': iRes.count,
+        };
 
-        if (qEl) qEl.textContent = qRes.count ?? '—';
-        if (dEl) dEl.textContent = dRes.count ?? '—';
-        if (cEl) cEl.textContent = cRes.count ?? '—';
+        for (const [id, val] of Object.entries(stats)) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val ?? '—';
+        }
     }
 
     return { init, navigate };
