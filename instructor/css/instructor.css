@@ -684,6 +684,16 @@ body {
     color: var(--clr-error);
 }
 
+/* Drug card thumbnail */
+.drug-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius);
+    object-fit: cover;
+    border: 1px solid var(--clr-border);
+    flex-shrink: 0;
+}
+
 .loading-text,
 .empty-text,
 .error-text {
