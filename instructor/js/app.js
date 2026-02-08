@@ -1,0 +1,85 @@
+// Instructor dashboard application routing
+// Handles navigation between sections (questions, drugs, etc.)
+
+const App = (() => {
+    let initialized = false;
+
+    function init() {
+        if (initialized) return;
+        initialized = true;
+
+        bindNavigation();
+        bindMobileMenu();
+        navigate('overview');
+    }
+
+    // --- Section navigation ---
+    function navigate(sectionId) {
+        // Hide all sections
+        document.querySelectorAll('.section').forEach((s) => {
+            s.classList.remove('active');
+        });
+
+        // Deactivate all nav items
+        document.querySelectorAll('.nav-item[data-section]').forEach((n) => {
+            n.classList.remove('active');
+        });
+
+        // Show target section
+        const target = document.getElementById('section-' + sectionId);
+        if (target) {
+            target.classList.add('active');
+        }
+
+        // Highlight nav item
+        const navItem = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
+        if (navItem) {
+            navItem.classList.add('active');
+        }
+
+        // Close mobile sidebar on navigation
+        closeMobileMenu();
+    }
+
+    function bindNavigation() {
+        document.querySelectorAll('.nav-item[data-section]').forEach((item) => {
+            item.addEventListener('click', () => {
+                navigate(item.dataset.section);
+            });
+        });
+    }
+
+    // --- Mobile menu ---
+    function bindMobileMenu() {
+        const toggleBtn = document.getElementById('btn-menu-toggle');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', toggleMobileMenu);
+        }
+        if (overlay) {
+            overlay.addEventListener('click', closeMobileMenu);
+        }
+    }
+
+    function toggleMobileMenu() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('visible');
+    }
+
+    function closeMobileMenu() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        sidebar.classList.remove('open');
+        overlay.classList.remove('visible');
+    }
+
+    return { init, navigate };
+})();
+
+// --- Bootstrap on DOM ready ---
+document.addEventListener('DOMContentLoaded', () => {
+    Auth.init();
+});
