@@ -17,7 +17,7 @@
 
     const LOCAL_CONFIG = {
         // URL берём из глобального CONFIG (config.js), fallback на хардкод
-        API_URL: (typeof window.CONFIG !== 'undefined' && window.LOCAL_CONFIG.API_URL) ? window.LOCAL_CONFIG.API_URL : FALLBACK_API_URL,
+        API_URL: (typeof window.CONFIG !== 'undefined' && window.CONFIG.API_URL) ? window.CONFIG.API_URL : FALLBACK_API_URL,
 
         // Показывать ли авторизацию при старте
         REQUIRE_AUTH: true,
