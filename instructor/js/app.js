@@ -5,6 +5,7 @@ const App = (() => {
     let initialized = false;
 
     let questionsReady = false;
+    let drugsReady = false;
 
     function init() {
         if (initialized) return;
@@ -40,9 +41,16 @@ const App = (() => {
         }
 
         // Lazy-init section modules
+        if (sectionId === 'overview') {
+            loadOverviewStats();
+        }
         if (sectionId === 'questions' && !questionsReady) {
             questionsReady = true;
             Questions.init();
+        }
+        if (sectionId === 'drugs' && !drugsReady) {
+            drugsReady = true;
+            Drugs.init();
         }
 
         // Close mobile sidebar on navigation
@@ -82,6 +90,23 @@ const App = (() => {
         const overlay = document.getElementById('sidebar-overlay');
         sidebar.classList.remove('open');
         overlay.classList.remove('visible');
+    }
+
+    // --- Overview stats ---
+    async function loadOverviewStats() {
+        const [qRes, dRes, cRes] = await Promise.all([
+            supabaseClient.from('questions').select('id', { count: 'exact', head: true }),
+            supabaseClient.from('drugs').select('id', { count: 'exact', head: true }),
+            supabaseClient.from('competencies').select('id', { count: 'exact', head: true }),
+        ]);
+
+        const qEl = document.getElementById('stat-questions');
+        const dEl = document.getElementById('stat-drugs');
+        const cEl = document.getElementById('stat-competencies');
+
+        if (qEl) qEl.textContent = qRes.count ?? '—';
+        if (dEl) dEl.textContent = dRes.count ?? '—';
+        if (cEl) cEl.textContent = cRes.count ?? '—';
     }
 
     return { init, navigate };
