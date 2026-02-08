@@ -187,9 +187,12 @@ const SyncModule = (function() {
             return { success: false, reason: 'not_logged_in' };
         }
         
-        if (!AuthModule.isOnline()) {
-            console.log('📵 Синхронизация невозможна: нет соединения');
-            return { success: false, reason: 'offline' };
+        try {
+            if (!AuthModule.isOnline()) {
+                return { success: false, reason: 'offline' };
+            }
+        } catch (e) {
+            return { success: false, reason: 'auth_unavailable' };
         }
         
         isSyncing = true;

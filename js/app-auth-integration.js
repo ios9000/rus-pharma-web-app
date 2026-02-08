@@ -191,35 +191,33 @@
             console.warn('⚠️ SyncModule не найден');
             return;
         }
-        
-        SyncModule.init({
-            onSyncStart: () => {
-                updateSyncStatus('syncing');
-            },
-            onSyncComplete: (result) => {
-                updateSyncStatus('synced');
-                console.log(`✅ Синхронизация: отправлено ${result.saved}, получено ${result.loaded}`);
-            },
-            onSyncError: (error) => {
-                updateSyncStatus('error');
-                console.error('❌ Ошибка синхронизации:', error);
-            },
-            onDataReceived: (data) => {
-                // Обновляем UI после получения данных с сервера
-                if (typeof updateProgress === 'function') {
-                    updateProgress();
+
+        try {
+            SyncModule.init({
+                onSyncStart: () => updateSyncStatus('syncing'),
+                onSyncComplete: (result) => {
+                    updateSyncStatus('synced');
+                    console.log(`✅ Синхронизация: отправлено ${result.saved}, получено ${result.loaded}`);
+                },
+                onSyncError: (error) => {
+                    updateSyncStatus('error');
+                    // Тихий лог вместо console.error — модуль пока не функционален
+                    console.debug('🔇 Sync disabled (graceful):', error.message);
+                },
+                onDataReceived: (data) => {
+                    if (typeof updateProgress === 'function') updateProgress();
+                    if (typeof ProgressMatrix !== 'undefined') {
+                        const container = document.getElementById('competency-matrix-container');
+                        if (container) ProgressMatrix.render(container);
+                    }
                 }
-                if (typeof ProgressMatrix !== 'undefined') {
-                    const container = document.getElementById('competency-matrix-container');
-                    if (container) ProgressMatrix.render(container);
-                }
-            }
-        });
-        
-        // Начальная синхронизация
-        setTimeout(() => {
-            SyncModule.syncNow().catch(console.error);
-        }, 2000);
+            });
+        } catch (e) {
+            console.debug('🔇 SyncModule init skipped:', e.message);
+        }
+
+        // Начальная синхронизация — ОТКЛЮЧЕНА до починки endpoint
+        // setTimeout(() => { SyncModule.syncNow().catch(console.error); }, 2000);
     }
 
     /**
