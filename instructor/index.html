@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кабинет инструктора</title>
+    <link rel="stylesheet" href="css/instructor.css">
+</head>
+<body>
+
+    <!-- ======================== LOGIN SCREEN ======================== -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>Кабинет инструктора</h1>
+                <p>Вход для преподавателей</p>
+            </div>
+
+            <div id="login-error" class="login-error"></div>
+
+            <form id="login-form" autocomplete="on">
+                <div class="form-field">
+                    <label for="login-email">Email</label>
+                    <input
+                        type="email"
+                        id="login-email"
+                        name="email"
+                        placeholder="instructor@example.com"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+                <div class="form-field">
+                    <label for="login-password">Пароль</label>
+                    <input
+                        type="password"
+                        id="login-password"
+                        name="password"
+                        placeholder="Введите пароль"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+                <button type="submit" id="btn-login" class="btn-login">
+                    <span class="spinner" id="login-spinner"></span>
+                    <span id="login-btn-text">Войти</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ======================== DASHBOARD ======================== -->
+    <div id="dashboard" class="dashboard">
+
+        <!-- Mobile top bar -->
+        <div class="topbar">
+            <h2>Кабинет инструктора</h2>
+            <button id="btn-menu-toggle" class="btn-menu-toggle" aria-label="Menu">&#9776;</button>
+        </div>
+
+        <!-- Sidebar overlay (mobile) -->
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h2>Кабинет инструктора</h2>
+                <span>Управление контентом</span>
+            </div>
+
+            <div class="sidebar-nav">
+                <div class="nav-section-label">Навигация</div>
+                <button class="nav-item" data-section="overview">
+                    <span class="nav-item-icon">&#9632;</span>
+                    Обзор
+                </button>
+                <button class="nav-item" data-section="questions">
+                    <span class="nav-item-icon">&#9997;</span>
+                    Вопросы
+                </button>
+                <button class="nav-item" data-section="drugs">
+                    <span class="nav-item-icon">&#9883;</span>
+                    Препараты
+                </button>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="user-initial">I</div>
+                    <div class="user-email" id="user-email">instructor@example.com</div>
+                </div>
+                <button id="btn-logout" class="btn-logout">
+                    Выйти
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="main-content">
+
+            <!-- Overview section -->
+            <div id="section-overview" class="section">
+                <div class="page-header">
+                    <h1>Обзор</h1>
+                    <p>Панель управления учебным контентом</p>
+                </div>
+                <div class="overview-grid">
+                    <div class="overview-card">
+                        <h3>Вопросы</h3>
+                        <div class="overview-value" id="stat-questions">&mdash;</div>
+                    </div>
+                    <div class="overview-card">
+                        <h3>Препараты</h3>
+                        <div class="overview-value" id="stat-drugs">&mdash;</div>
+                    </div>
+                    <div class="overview-card">
+                        <h3>Компетенции</h3>
+                        <div class="overview-value" id="stat-competencies">&mdash;</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions section (stub) -->
+            <div id="section-questions" class="section">
+                <div class="page-header">
+                    <h1>Вопросы</h1>
+                    <p>Управление тестовыми вопросами</p>
+                </div>
+                <div class="placeholder-card">
+                    <div class="placeholder-icon">&#9997;</div>
+                    <h3>Раздел в разработке</h3>
+                    <p>CRUD вопросов с загрузкой иллюстраций будет реализован в Фазе 2.</p>
+                </div>
+            </div>
+
+            <!-- Drugs section (stub) -->
+            <div id="section-drugs" class="section">
+                <div class="page-header">
+                    <h1>Препараты</h1>
+                    <p>Управление базой препаратов</p>
+                </div>
+                <div class="placeholder-card">
+                    <div class="placeholder-icon">&#9883;</div>
+                    <h3>Раздел в разработке</h3>
+                    <p>CRUD препаратов с загрузкой иллюстраций будет реализован в Фазе 3.</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ======================== SCRIPTS ======================== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+</html>
