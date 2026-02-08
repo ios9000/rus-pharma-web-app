@@ -436,6 +436,16 @@ body {
     padding: 24px;
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--clr-border);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.overview-card[data-navigate] {
+    cursor: pointer;
+}
+
+.overview-card[data-navigate]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .overview-card h3 {

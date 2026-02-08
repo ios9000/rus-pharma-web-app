@@ -78,6 +78,12 @@ const App = (() => {
                 navigate(item.dataset.section);
             });
         });
+
+        document.querySelectorAll('.overview-card[data-navigate]').forEach((card) => {
+            card.addEventListener('click', () => {
+                navigate(card.dataset.navigate);
+            });
+        });
     }
 
     // --- Mobile menu ---
