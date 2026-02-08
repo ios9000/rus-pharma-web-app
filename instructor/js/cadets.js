@@ -7,6 +7,12 @@ const Cadets = (() => {
 
     function el(id) { return document.getElementById(id); }
 
+    function generateCadetId() {
+        const timestamp = Date.now().toString(36);
+        const random = Math.random().toString(36).substring(2, 6);
+        return ('C' + timestamp + random).toUpperCase();
+    }
+
     function generatePin() {
         return String(Math.floor(1000 + Math.random() * 9000));
     }
@@ -189,6 +195,7 @@ const Cadets = (() => {
                     .update(row)
                     .eq('id', editingId));
             } else {
+                row.id = generateCadetId();
                 ({ error } = await supabaseClient
                     .from('cadets')
                     .insert(row));
