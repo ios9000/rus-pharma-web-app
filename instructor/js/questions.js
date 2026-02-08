@@ -379,6 +379,8 @@ const Questions = (() => {
 
             select.appendChild(group);
         }
+
+        select.value = '';
     }
 
     function buildBlockFilter() {
@@ -393,6 +395,8 @@ const Questions = (() => {
             opt.textContent = block.name;
             select.appendChild(opt);
         }
+
+        select.value = '';
     }
 
     function getCompetencyLabel(id) {
