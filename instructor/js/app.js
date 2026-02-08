@@ -4,6 +4,8 @@
 const App = (() => {
     let initialized = false;
 
+    let questionsReady = false;
+
     function init() {
         if (initialized) return;
         initialized = true;
@@ -35,6 +37,12 @@ const App = (() => {
         const navItem = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
         if (navItem) {
             navItem.classList.add('active');
+        }
+
+        // Lazy-init section modules
+        if (sectionId === 'questions' && !questionsReady) {
+            questionsReady = true;
+            Questions.init();
         }
 
         // Close mobile sidebar on navigation

@@ -120,17 +120,21 @@
                 </div>
             </div>
 
-            <!-- Questions section (stub) -->
+            <!-- Questions section -->
             <div id="section-questions" class="section">
                 <div class="page-header">
                     <h1>Вопросы</h1>
                     <p>Управление тестовыми вопросами</p>
                 </div>
-                <div class="placeholder-card">
-                    <div class="placeholder-icon">&#9997;</div>
-                    <h3>Раздел в разработке</h3>
-                    <p>CRUD вопросов с загрузкой иллюстраций будет реализован в Фазе 2.</p>
+
+                <div class="section-toolbar">
+                    <input type="text" id="q-search" class="search-input" placeholder="Поиск по тексту вопроса...">
+                    <select id="q-filter-block" class="filter-select"></select>
+                    <span class="q-count">Вопросов: <span id="q-count">0</span></span>
+                    <button id="btn-add-question" class="btn-primary">+ Добавить</button>
                 </div>
+
+                <div id="questions-list"></div>
             </div>
 
             <!-- Drugs section (stub) -->
@@ -149,11 +153,88 @@
         </main>
     </div>
 
+    <!-- ======================== QUESTION FORM MODAL ======================== -->
+    <div id="question-modal" class="modal">
+        <div id="question-modal-overlay" class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Новый вопрос</h2>
+                <button id="btn-close-modal" class="btn-close-modal" aria-label="Close">&#10005;</button>
+            </div>
+
+            <div id="form-error" class="form-error"></div>
+
+            <div class="form-group">
+                <label for="qf-text">Текст вопроса</label>
+                <textarea id="qf-text" placeholder="Введите текст вопроса..."></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="qf-competency">Компетенция</label>
+                    <select id="qf-competency"></select>
+                </div>
+                <div class="form-group">
+                    <label for="qf-difficulty">Сложность</label>
+                    <select id="qf-difficulty">
+                        <option value="1">1 — Базовый</option>
+                        <option value="2">2 — Средний</option>
+                        <option value="3">3 — Продвинутый</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="options-header">
+                    <label>Варианты ответов</label>
+                    <button type="button" id="btn-add-option" class="btn-sm">+ Вариант</button>
+                </div>
+                <div id="qf-options-list"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="qf-image-input">Иллюстрация</label>
+                <input type="file" id="qf-image-input" accept="image/*">
+                <div id="qf-image-preview" class="image-preview hidden"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="qf-explanation">Пояснение к ответу</label>
+                <textarea id="qf-explanation" placeholder="Пояснение (необязательно)..."></textarea>
+            </div>
+
+            <div class="form-footer">
+                <button type="button" class="btn-cancel" id="btn-cancel-question" onclick="document.getElementById('btn-close-modal').click()">Отмена</button>
+                <button type="button" class="btn-primary" id="btn-save-question">Создать вопрос</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== CONFIRM DELETE MODAL ======================== -->
+    <div id="confirm-modal" class="modal confirm-modal">
+        <div id="confirm-modal-overlay" class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="confirm-icon">&#9888;</div>
+            <h3>Удалить вопрос?</h3>
+            <p class="confirm-preview" id="confirm-text"></p>
+            <div class="confirm-actions">
+                <button type="button" class="btn-cancel" id="btn-confirm-no">Отмена</button>
+                <button type="button" class="btn-danger" id="btn-confirm-yes">Удалить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
     <!-- ======================== SCRIPTS ======================== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/supabase-client.js"></script>
     <script src="js/auth.js"></script>
+    <script src="../js/competencies-config.js"></script>
+    <script src="js/image-upload.js"></script>
+    <script src="js/questions.js"></script>
     <script src="js/app.js"></script>
 
 </body>
