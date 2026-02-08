@@ -151,8 +151,8 @@ rus-pharma-web-app/
 
 ## Текущая итерация
 
-Завершена: **004 — Instructor Dashboard MVP** + **004.5 — User Management** (группы, курсанты, инструкторы)
-Следующая: **005 — LLM Automation**
+Завершена: **004.5 — User Management** (см. docs/iterations/004.5_user-management/)
+Следующая: **005 — LLM Automation** (см. docs/roadmap.md)
 
 ---
 
