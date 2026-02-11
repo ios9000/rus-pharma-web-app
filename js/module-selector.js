@@ -140,6 +140,8 @@
         var status = assignment ? assignment.status : 'closed';
         var questions = CourseData.getModuleQuestions(mod.module_number);
         var questionCount = questions.length;
+        var openAnswerCount = (typeof CourseData.getOpenAnswerCount === 'function')
+            ? CourseData.getOpenAnswerCount(mod.module_number) : 0;
 
         var statusIcon, statusColor, clickable, bgColor;
 
@@ -171,9 +173,29 @@
             progressText = ' \u00B7 Результат: ' + moduleProgress.correct + '/' + moduleProgress.total + ' (' + pct + '%)';
         }
 
-        var onclickAttr = clickable && questionCount > 0
-            ? 'onclick="startModuleTest(' + mod.module_number + ')"' : '';
-        var hoverAttrs = clickable
+        // Build info text: MC count + open answer count
+        var infoText = '';
+        if (questionCount > 0 && openAnswerCount > 0) {
+            infoText = questionCount + ' \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 MC \u00B7 ' + openAnswerCount + ' \u0437\u0430\u0434\u0430\u043D\u0438\u0439';
+        } else if (questionCount > 0) {
+            infoText = questionCount + ' \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432';
+        } else if (openAnswerCount > 0) {
+            infoText = openAnswerCount + ' \u0437\u0430\u0434\u0430\u043D\u0438\u0439';
+        } else {
+            infoText = '\u041D\u0435\u0442 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432';
+        }
+
+        var hasContent = questionCount > 0 || openAnswerCount > 0;
+
+        // Click handler: MC test if available, otherwise open answers
+        var onclickAttr = '';
+        if (clickable && questionCount > 0) {
+            onclickAttr = 'onclick="startModuleTest(' + mod.module_number + ')"';
+        } else if (clickable && openAnswerCount > 0) {
+            onclickAttr = 'onclick="OpenAnswerUI.loadForModule(' + mod.module_number + ').then(function() { OpenAnswerUI.render(); })"';
+        }
+
+        var hoverAttrs = clickable && hasContent
             ? 'onmouseover="this.style.transform=\'translateY(-1px)\'; this.style.boxShadow=\'0 2px 8px rgba(0,0,0,0.1)\'" ' +
               'onmouseout="this.style.transform=\'none\'; this.style.boxShadow=\'none\'"'
             : '';
@@ -182,7 +204,7 @@
             '<div ' + onclickAttr + ' ' + hoverAttrs + ' ' +
                 'style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; ' +
                 'background: ' + bgColor + '; border: 2px solid ' + (clickable ? statusColor + '40' : '#e0e0e0') + '; ' +
-                'border-radius: 12px; cursor: ' + (clickable ? 'pointer' : 'default') + '; ' +
+                'border-radius: 12px; cursor: ' + (clickable && hasContent ? 'pointer' : 'default') + '; ' +
                 'transition: all 0.2s ease;' + (!clickable ? ' opacity: 0.6;' : '') + '">' +
                 '<div style="font-size: 24px; min-width: 36px; text-align: center;">' + statusIcon + '</div>' +
                 '<div style="flex: 1;">' +
@@ -190,11 +212,11 @@
                         mod.module_number + '. ' + escapeHtml(mod.module_name) +
                     '</div>' +
                     '<div style="color: #888; font-size: 13px; margin-top: 2px;">' +
-                        (questionCount > 0 ? questionCount + ' вопросов' : 'Нет вопросов') +
+                        infoText +
                         progressText +
                     '</div>' +
                 '</div>' +
-                (clickable && questionCount > 0 ? '<div style="color: #1a3a52; font-size: 18px;">\u2192</div>' : '') +
+                (clickable && hasContent ? '<div style="color: #1a3a52; font-size: 18px;">\u2192</div>' : '') +
             '</div>'
         );
     }

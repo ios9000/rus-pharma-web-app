@@ -10,6 +10,7 @@
     let modules = [];           // course_modules from Supabase
     let assignments = [];       // course_assignments for the current group
     let moduleQuestionMap = {}; // { moduleNumber: [question, ...] }
+    let openAnswerCounts = {};  // { moduleNumber: count }
     let loaded = false;
     let _groupCode = null;
 
@@ -69,8 +70,11 @@
                 assignments = assignmentsResult.data || [];
             }
 
-            // Load Supabase questions and merge
-            await loadSupabaseQuestions();
+            // Load Supabase questions and merge + open answer counts
+            await Promise.all([
+                loadSupabaseQuestions(),
+                loadOpenAnswerCounts()
+            ]);
 
         } catch (err) {
             console.warn('[CourseData] Supabase unavailable, fallback to appData:', err);
@@ -179,6 +183,42 @@
     }
 
     // ============================================
+    // ЗАГРУЗКА КОЛИЧЕСТВА ЗАДАНИЙ С РАЗВЁРНУТЫМ ОТВЕТОМ
+    // ============================================
+
+    async function loadOpenAnswerCounts() {
+        if (!window.supabaseClient) return;
+
+        try {
+            var result = await window.supabaseClient
+                .from('open_answer_questions')
+                .select('module_id');
+
+            if (result.error || !result.data) {
+                console.warn('[CourseData] Error loading open answer counts:', result.error);
+                return;
+            }
+
+            // Map module PK id → module_number
+            var moduleIdToNumber = {};
+            modules.forEach(function(m) {
+                moduleIdToNumber[m.id] = m.module_number;
+            });
+
+            // Count per module_number
+            openAnswerCounts = {};
+            result.data.forEach(function(row) {
+                var moduleNumber = moduleIdToNumber[row.module_id];
+                if (moduleNumber) {
+                    openAnswerCounts[moduleNumber] = (openAnswerCounts[moduleNumber] || 0) + 1;
+                }
+            });
+        } catch (err) {
+            console.warn('[CourseData] Error loading open answer counts:', err);
+        }
+    }
+
+    // ============================================
     // PUBLIC API
     // ============================================
 
@@ -252,6 +292,13 @@
         return loaded;
     }
 
+    /**
+     * Get open answer question count for a module number
+     */
+    function getOpenAnswerCount(moduleNumber) {
+        return openAnswerCounts[moduleNumber] || 0;
+    }
+
     // Export
     window.CourseData = {
         loadCourseData: loadCourseData,
@@ -260,7 +307,8 @@
         getModuleQuestions: getModuleQuestions,
         getAllModules: getAllModules,
         hasAssignments: hasAssignments,
-        isLoaded: isLoaded
+        isLoaded: isLoaded,
+        getOpenAnswerCount: getOpenAnswerCount
     };
 
 })();

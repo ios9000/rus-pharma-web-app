@@ -10,6 +10,7 @@ const App = (() => {
     let cadetsReady = false;
     let instructorsReady = false;
     let generationReady = false;
+    let courseManagementReady = false;
 
     function init() {
         if (initialized) return;
@@ -72,6 +73,12 @@ const App = (() => {
             generationReady = true;
             if (typeof LLMGenerator !== 'undefined') {
                 LLMGenerator.init();
+            }
+        }
+        if (sectionId === 'course-management' && !courseManagementReady) {
+            courseManagementReady = true;
+            if (typeof CourseManagement !== 'undefined') {
+                CourseManagement.init();
             }
         }
 

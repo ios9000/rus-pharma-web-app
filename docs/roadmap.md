@@ -38,13 +38,15 @@
 - Таблицы: `generated_content`, `generation_log`; миграция `drugs.item_type`
 - Docs: docs/iterations/005_llm-automation/session-log.md
 
-## In Progress
-
-### 006 Structured Testing
-- **006A:** Структурированное тестирование — курсант видит только назначенные тесты
-- **006B:** Инструменты инструктора — открытие/закрытие модулей, назначение тестов
-- **006C:** Аналитика — отчёты по группам и курсантам
-- Docs: docs/iterations/006_structured-testing/requirements.md
+### 006 Structured Testing (2026-02-11)
+- **Фаза 1:** БД — 8 новых таблиц, RLS, индексы, seed 20 модулей + 3 уровня
+- **Фаза 2:** Курсант — module-selector.js, course-data.js, MC тесты по модулям + Supabase save
+- **Фаза 3:** Курсант — open-answer-ui.js, задания с развёрнутым ответом, seed 3 задания
+- **Фаза 4:** Инструктор — course-management.js (модули, сессии, статусы, review/grading OA)
+- **Фаза 5:** Интеграция, тестирование, документация
+- Таблицы: course_levels, course_modules, course_assignments, test_sessions, test_session_modules, open_answer_questions, student_test_results, student_open_answers
+- Новые файлы: js/course-data.js, js/module-selector.js, js/open-answer-ui.js, js/supabase-client.js, instructor/js/course-management.js
+- Docs: docs/iterations/006_structured-testing/
 
 ## Planned
 

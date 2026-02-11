@@ -88,6 +88,10 @@
                 </button>
 
                 <div class="nav-section-label">Управление</div>
+                <button class="nav-item" data-section="course-management">
+                    <span class="nav-item-icon">&#127891;</span>
+                    Управление курсом
+                </button>
                 <button class="nav-item" data-section="groups">
                     <span class="nav-item-icon">&#9733;</span>
                     Группы
@@ -238,6 +242,60 @@
                     <button id="btn-add-instructor" class="btn-primary">+ Добавить</button>
                 </div>
                 <div id="instructors-list"></div>
+            </div>
+
+            <!-- Course Management section -->
+            <div id="section-course-management" class="section">
+                <div class="page-header">
+                    <h1>&#127891; Управление курсом</h1>
+                    <p>Модули, сессии, прогресс курсантов</p>
+                </div>
+
+                <!-- Group selector -->
+                <div class="cm-panel">
+                    <div class="form-row" style="align-items: flex-end; gap: 16px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="cm-group-select">Группа</label>
+                            <select id="cm-group-select" class="filter-select" style="width: 100%;"></select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="cm-level-select">Уровень курса</label>
+                            <select id="cm-level-select" class="filter-select" style="width: 100%;"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group details (hidden until group selected) -->
+                <div id="cm-group-details" class="hidden">
+
+                    <!-- Modules management -->
+                    <div class="cm-panel">
+                        <h2 style="margin-bottom: 12px;">&#128218; Модули</h2>
+                        <div id="cm-modules-list"></div>
+                    </div>
+
+                    <!-- Test sessions -->
+                    <div class="cm-panel">
+                        <h2 style="margin-bottom: 12px;">&#128221; Тестовые сессии</h2>
+                        <div id="cm-sessions-list"></div>
+                    </div>
+
+                    <!-- Cadet status -->
+                    <div class="cm-panel">
+                        <h2 style="margin-bottom: 12px;">&#128100; Статус курсантов</h2>
+                        <p style="color: var(--clr-text-secondary); font-size: 13px; margin-bottom: 10px;">Нажмите на имя курсанта, чтобы просмотреть развёрнутые ответы.</p>
+                        <div id="cm-cadets-table"></div>
+                    </div>
+
+                    <!-- Open answer review (hidden until cadet clicked) -->
+                    <div id="cm-review-panel" class="cm-panel hidden">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h2 id="cm-review-title">&#128196; Развёрнутые ответы</h2>
+                            <button class="btn-sm btn-outline" data-action="close-review">&#10005; Закрыть</button>
+                        </div>
+                        <div id="cm-review-list"></div>
+                    </div>
+                </div>
             </div>
 
         </main>
@@ -517,6 +575,41 @@
         </div>
     </div>
 
+    <!-- ======================== SESSION FORM MODAL ======================== -->
+    <div id="cm-session-modal" class="modal">
+        <div class="modal-overlay" onclick="document.getElementById('cm-session-modal').classList.remove('visible'); document.body.style.overflow='';"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Новая тестовая сессия</h2>
+                <button class="btn-close-modal" data-action="cancel-session" aria-label="Close">&#10005;</button>
+            </div>
+            <div class="form-group">
+                <label for="cm-sf-title">Название *</label>
+                <input type="text" id="cm-sf-title" placeholder="Например: Входное тестирование">
+            </div>
+            <div class="form-group">
+                <label for="cm-sf-type">Тип сессии</label>
+                <select id="cm-sf-type">
+                    <option value="module">Модульный тест</option>
+                    <option value="entrance">Входное тестирование</option>
+                    <option value="final">Финальное тестирование</option>
+                </select>
+            </div>
+            <div class="form-group" id="cm-sf-module-row">
+                <label for="cm-sf-module">Модуль</label>
+                <select id="cm-sf-module"></select>
+            </div>
+            <div class="form-group" id="cm-sf-modules-multi-row" style="display: none;">
+                <label>Модули (выберите несколько)</label>
+                <div id="cm-sf-modules-multi" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--clr-border); border-radius: var(--radius); padding: 8px;"></div>
+            </div>
+            <div class="form-footer">
+                <button type="button" class="btn-cancel" data-action="cancel-session">Отмена</button>
+                <button type="button" class="btn-primary" data-action="save-session">Создать сессию</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div id="toast" class="toast"></div>
 
@@ -542,6 +635,7 @@
     <script src="js/groups.js"></script>
     <script src="js/cadets.js"></script>
     <script src="js/instructors.js"></script>
+    <script src="js/course-management.js"></script>
     <script src="js/text-extractor.js"></script>
     <script src="js/review-cards.js"></script>
     <script src="js/llm-generator.js"></script>

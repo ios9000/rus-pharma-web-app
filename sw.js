@@ -3,7 +3,7 @@
 // sw.js
 // ============================================
 
-const CACHE_NAME = 'pharma-v2.1.0';
+const CACHE_NAME = 'pharma-v2.2.0';
 
 const ASSETS_TO_CACHE = [
     './',
@@ -29,6 +29,7 @@ const ASSETS_TO_CACHE = [
     './js/test-selector.js',
     './js/course-data.js',
     './js/module-selector.js',
+    './js/open-answer-ui.js',
     './js/supabase-client.js',
     './js/app.js',
     './js/auth-module.js',

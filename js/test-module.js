@@ -691,6 +691,17 @@ function showTestResult(container) {
         ? '<button onclick="backToModuleSelector()" style="padding: 15px; background: #17a2b8; color: white; border: none; border-radius: 10px; font-size: 16px; width: 100%; cursor: pointer; margin-bottom: 10px;">📚 К списку модулей</button>'
         : '';
 
+    // Open answer button (if questions exist for this module)
+    var openAnswerBtn = '';
+    if (currentModuleNumber && typeof OpenAnswerUI !== 'undefined' && OpenAnswerUI.hasQuestions()) {
+        var oaCount = OpenAnswerUI.getQuestionCount();
+        openAnswerBtn =
+            '<button onclick="OpenAnswerUI.render()" ' +
+                'style="padding: 15px; background: #6f42c1; color: white; border: none; border-radius: 10px; font-size: 16px; width: 100%; cursor: pointer; margin-bottom: 10px;">' +
+                '\uD83D\uDCDD \u0417\u0430\u0434\u0430\u043D\u0438\u044F \u0441 \u0440\u0430\u0437\u0432\u0451\u0440\u043D\u0443\u0442\u044B\u043C \u043E\u0442\u0432\u0435\u0442\u043E\u043C (' + oaCount + ')' +
+            '</button>';
+    }
+
     container.innerHTML = `
         <div style="text-align: center; padding: 20px 10px;">
             <div style="font-size: 60px; margin-bottom: 15px;">${emoji}</div>
@@ -716,6 +727,7 @@ function showTestResult(container) {
 
             <!-- Кнопки -->
             ${backToModulesBtn}
+            ${openAnswerBtn}
 
             <button onclick="${currentModuleNumber ? 'startModuleTest(' + currentModuleNumber + ')' : 'initTestModule()'}"
                     style="padding: 15px 30px; background: #0056b3; color: white; border: none; border-radius: 10px; font-size: 18px; width: 100%; cursor: pointer; margin-bottom: 10px;">
@@ -875,8 +887,20 @@ function startModuleTest(moduleNumber) {
         return;
     }
 
+    // Preload open answer questions
+    if (typeof OpenAnswerUI !== 'undefined') {
+        OpenAnswerUI.loadForModule(moduleNumber);
+    }
+
     var questions = CourseData.getModuleQuestions(moduleNumber);
     if (!questions || questions.length === 0) {
+        // No MC questions — check if open answers exist
+        if (typeof OpenAnswerUI !== 'undefined' && CourseData.getOpenAnswerCount(moduleNumber) > 0) {
+            OpenAnswerUI.loadForModule(moduleNumber).then(function() {
+                OpenAnswerUI.render();
+            });
+            return;
+        }
         alert('Нет вопросов для модуля ' + moduleNumber);
         return;
     }
