@@ -1551,6 +1551,115 @@ body {
     word-break: break-word;
 }
 
+/* --- Intro steps --- */
+.gen-intro {
+    margin-bottom: 20px;
+}
+
+.gen-intro-steps {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.gen-intro-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 200px;
+    padding: 14px 16px;
+    background: var(--clr-surface);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    color: var(--clr-text);
+}
+
+.gen-intro-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--clr-primary);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* --- Field hints --- */
+.gen-hint {
+    display: block;
+    font-size: 12px;
+    color: var(--clr-text-secondary);
+    margin-top: 4px;
+    font-weight: 400;
+}
+
+/* --- Text warning (long text) --- */
+.gen-text-warning {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    color: #92400e;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    line-height: 1.5;
+}
+
+/* --- Error card --- */
+.gen-error {
+    text-align: center;
+    padding: 32px 24px;
+}
+
+.gen-error-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.gen-error-message {
+    font-size: 15px;
+    color: var(--clr-text);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    white-space: pre-wrap;
+}
+
+/* --- Progress title --- */
+.gen-progress-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--clr-text);
+    margin-bottom: 8px;
+}
+
+/* --- Generation stats --- */
+.gen-results-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 12px 16px;
+    background: var(--clr-bg);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+}
+
+.gen-stats-item {
+    font-size: 13px;
+    color: var(--clr-text-secondary);
+    white-space: nowrap;
+}
+
+.gen-stats-item strong {
+    color: var(--clr-text);
+}
+
 /* --- Responsive --- */
 @media (max-width: 768px) {
     .gen-type-grid {
@@ -1563,6 +1672,15 @@ body {
 
     .gen-upload-zone {
         padding: 24px 16px;
+    }
+
+    .gen-intro-steps {
+        flex-direction: column;
+    }
+
+    .gen-results-stats {
+        flex-direction: column;
+        gap: 8px;
     }
 }
 

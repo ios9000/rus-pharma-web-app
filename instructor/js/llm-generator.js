@@ -6,6 +6,8 @@ const LLMGenerator = (() => {
     let extractedText = '';
     let isGenerating = false;
 
+    const CLIENT_TIMEOUT_MS = 95_000; // чуть больше серверных 90 сек
+
     function el(id) { return document.getElementById(id); }
 
     function init() {
@@ -24,6 +26,24 @@ const LLMGenerator = (() => {
         if (!container) return;
 
         container.innerHTML = `
+            <!-- Intro steps -->
+            <div class="gen-intro">
+                <div class="gen-intro-steps">
+                    <div class="gen-intro-step">
+                        <span class="gen-intro-step-num">1</span>
+                        <span>Загрузите PDF / DOCX или вставьте текст</span>
+                    </div>
+                    <div class="gen-intro-step">
+                        <span class="gen-intro-step-num">2</span>
+                        <span>Выберите типы контента и настройки</span>
+                    </div>
+                    <div class="gen-intro-step">
+                        <span class="gen-intro-step-num">3</span>
+                        <span>Ревьюите, редактируйте и утверждайте</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Upload section -->
             <div class="gen-card">
                 <h3 class="gen-card-title">Загрузка материалов</h3>
@@ -51,6 +71,7 @@ const LLMGenerator = (() => {
                 <div id="gen-text-stats" class="gen-text-stats hidden">
                     <span id="gen-char-count"></span>
                 </div>
+                <div id="gen-text-warning" class="gen-text-warning hidden"></div>
             </div>
 
             <!-- Settings section -->
@@ -77,6 +98,7 @@ const LLMGenerator = (() => {
                             <span>Сценарии</span>
                         </label>
                     </div>
+                    <span class="gen-hint">Выберите хотя бы один тип контента</span>
                 </div>
 
                 <div class="form-row">
@@ -86,6 +108,7 @@ const LLMGenerator = (() => {
                             <option value="">-- Не указана --</option>
                             ${buildCompetencyOptions()}
                         </select>
+                        <span class="gen-hint">Вопросы и сценарии будут привязаны к этой компетенции</span>
                     </div>
                     <div class="form-group">
                         <label for="gen-block">Блок</label>
@@ -103,11 +126,12 @@ const LLMGenerator = (() => {
                             <option value="2" selected>2 — Средний</option>
                             <option value="3">3 — Продвинутый</option>
                         </select>
+                        <span class="gen-hint">1 — факты, 2 — понимание, 3 — анализ и применение</span>
                     </div>
                     <div class="form-group">
                         <label for="gen-count">Количество</label>
                         <input type="number" id="gen-count" value="5" min="1" max="20">
-                        <span class="gen-count-hint">элементов каждого типа</span>
+                        <span class="gen-hint">Элементов каждого выбранного типа (1–20)</span>
                     </div>
                 </div>
 
@@ -115,6 +139,7 @@ const LLMGenerator = (() => {
                     <label for="gen-instructions">Дополнительные пожелания (опционально)</label>
                     <textarea id="gen-instructions" rows="3"
                         placeholder="Например: &laquo;Фокус на дозировках&raquo;, &laquo;Сложные вопросы про полевые условия&raquo;..."></textarea>
+                    <span class="gen-hint">Claude учтёт ваши пожелания при генерации</span>
                 </div>
 
                 <button type="button" id="gen-submit-btn" class="btn-primary gen-submit-btn" disabled>
@@ -125,13 +150,22 @@ const LLMGenerator = (() => {
             <!-- Progress -->
             <div id="gen-progress" class="gen-card gen-progress hidden">
                 <div class="gen-progress-spinner"></div>
-                <div class="gen-progress-text">Claude AI генерирует контент...</div>
-                <div class="gen-progress-hint">Это может занять 15–60 секунд</div>
+                <h3 class="gen-progress-title">Claude AI генерирует контент...</h3>
+                <div class="gen-progress-hint">Это может занять 15–60 секунд в зависимости от объёма текста.</div>
+                <div class="gen-progress-hint">Не закрывайте страницу.</div>
+            </div>
+
+            <!-- Error -->
+            <div id="gen-error" class="gen-card gen-error hidden">
+                <div class="gen-error-icon">&#9888;</div>
+                <div class="gen-error-message" id="gen-error-msg"></div>
+                <button type="button" class="btn-primary btn-sm" id="gen-retry-btn">Попробовать снова</button>
             </div>
 
             <!-- Results section -->
             <div id="gen-results" class="gen-card hidden">
                 <h3 class="gen-card-title">Результаты генерации</h3>
+                <div id="gen-results-stats" class="gen-results-stats hidden"></div>
                 <div id="gen-results-meta" class="gen-results-meta"></div>
                 <div id="gen-results-list"></div>
             </div>
@@ -166,6 +200,7 @@ const LLMGenerator = (() => {
         const textarea = el('gen-textarea');
         const submitBtn = el('gen-submit-btn');
         const competencySelect = el('gen-competency');
+        const retryBtn = el('gen-retry-btn');
 
         // Upload zone click
         uploadZone.addEventListener('click', () => fileInput.click());
@@ -220,6 +255,12 @@ const LLMGenerator = (() => {
 
         // Submit
         submitBtn.addEventListener('click', generateContent);
+
+        // Retry
+        retryBtn.addEventListener('click', () => {
+            hideError();
+            generateContent();
+        });
     }
 
     // =============================================
@@ -289,9 +330,11 @@ const LLMGenerator = (() => {
     function updateTextStats() {
         const statsEl = el('gen-text-stats');
         const countEl = el('gen-char-count');
+        const warningEl = el('gen-text-warning');
 
         if (!extractedText || extractedText.length === 0) {
             statsEl.classList.add('hidden');
+            warningEl.classList.add('hidden');
             return;
         }
 
@@ -305,6 +348,14 @@ const LLMGenerator = (() => {
 
         statsEl.classList.remove('hidden');
         statsEl.className = 'gen-text-stats' + (isEnough ? ' gen-text-ok' : ' gen-text-short');
+
+        // Предупреждение о длинном тексте
+        if (chars > 80_000) {
+            warningEl.innerHTML = `&#9888; Текст длинный (${chars.toLocaleString('ru')} символов). Будут использованы первые ~100 000 символов. Для лучшего результата загружайте отдельные главы или разделы.`;
+            warningEl.classList.remove('hidden');
+        } else {
+            warningEl.classList.add('hidden');
+        }
     }
 
     function updateSubmitButton() {
@@ -340,6 +391,10 @@ const LLMGenerator = (() => {
         updateSubmitButton();
         showProgress(true);
         hideResults();
+        hideError();
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
 
         try {
             const session = await supabaseClient.auth.getSession();
@@ -372,8 +427,11 @@ const LLMGenerator = (() => {
                         },
                         additional_instructions: additionalInstructions,
                     }),
+                    signal: controller.signal,
                 }
             );
+
+            clearTimeout(timeoutId);
 
             const data = await response.json();
 
@@ -383,12 +441,71 @@ const LLMGenerator = (() => {
 
             showResults(data);
         } catch (err) {
-            showToast('Ошибка: ' + err.message, true);
+            clearTimeout(timeoutId);
+            if (err.name === 'AbortError') {
+                showError(getErrorMessage({ message: 'timeout' }));
+            } else {
+                showError(getErrorMessage(err));
+            }
         } finally {
             isGenerating = false;
             updateSubmitButton();
             showProgress(false);
         }
+    }
+
+    // =============================================
+    // ERROR HANDLING
+    // =============================================
+
+    function getErrorMessage(error) {
+        const msg = error?.message || error?.error || String(error);
+
+        // Таймаут
+        if (msg === 'timeout' || msg.includes('слишком много времени'))
+            return '&#9202; Генерация заняла слишком много времени. Попробуйте с меньшим объёмом текста или меньшим количеством типов контента.';
+
+        // Claude API ошибки
+        if (msg.includes('401') && msg.includes('Claude'))
+            return '&#128273; Ошибка API ключа Claude. Обратитесь к администратору.';
+        if (msg.includes('429'))
+            return '&#9203; Превышен лимит запросов Claude API. Подождите 1–2 минуты и попробуйте снова.';
+        if (msg.includes('overloaded') || msg.includes('529'))
+            return '&#128260; Сервер Claude перегружен. Попробуйте через несколько минут.';
+        if (msg.includes('not_found_error') && msg.includes('model'))
+            return '&#9881; Ошибка конфигурации модели. Обратитесь к администратору.';
+
+        // Валидация
+        if (msg.includes('минимум 100'))
+            return '&#128196; Текст слишком короткий. Загрузите лекцию длиннее 100 символов.';
+        if (msg.includes('тип контента'))
+            return '&#9745; Выберите хотя бы один тип контента.';
+        if (msg.includes('некорректный ответ'))
+            return '&#128260; Claude вернул некорректный ответ. Попробуйте ещё раз — результат может отличаться.';
+        if (msg.includes('count') || msg.includes('количество'))
+            return '&#128290; Проверьте количество элементов.';
+
+        // Сетевые
+        if (msg.includes('Failed to fetch') || msg.includes('NetworkError'))
+            return '&#127760; Нет соединения с сервером. Проверьте интернет и попробуйте снова.';
+
+        // Сессия
+        if (msg.includes('Сессия истекла') || msg.includes('Unauthorized'))
+            return '&#128274; Сессия истекла. Перезайдите в кабинет.';
+
+        // Неизвестная ошибка — показываем оригинал
+        return 'Ошибка: ' + escapeHtml(msg);
+    }
+
+    function showError(message) {
+        const errorEl = el('gen-error');
+        const msgEl = el('gen-error-msg');
+        msgEl.innerHTML = message;
+        errorEl.classList.remove('hidden');
+    }
+
+    function hideError() {
+        el('gen-error').classList.add('hidden');
     }
 
     // =============================================
@@ -410,10 +527,30 @@ const LLMGenerator = (() => {
 
     function showResults(data) {
         const resultsEl = el('gen-results');
+        const statsEl = el('gen-results-stats');
         const metaEl = el('gen-results-meta');
         const listEl = el('gen-results-list');
 
         const items = data.items || [];
+        const usage = data.usage || {};
+
+        // Статистика генерации
+        if (usage.duration_ms || usage.input_tokens || usage.output_tokens) {
+            const durationSec = (usage.duration_ms / 1000).toFixed(1);
+            const inputTok = (usage.input_tokens || 0).toLocaleString('ru');
+            const outputTok = (usage.output_tokens || 0).toLocaleString('ru');
+            const cost = estimateCost(usage.input_tokens || 0, usage.output_tokens || 0);
+
+            statsEl.innerHTML = `
+                <span class="gen-stats-item">&#9202; <strong>${durationSec} сек</strong></span>
+                <span class="gen-stats-item">&#128202; Токены: <strong>${inputTok}</strong> вход / <strong>${outputTok}</strong> выход</span>
+                <span class="gen-stats-item">&#128176; <strong>${cost}</strong></span>
+                <span class="gen-stats-item">&#128221; <strong>${items.length}</strong> элементов</span>
+            `;
+            statsEl.classList.remove('hidden');
+        } else {
+            statsEl.classList.add('hidden');
+        }
 
         // Meta info
         if (data.message) {
@@ -427,6 +564,13 @@ const LLMGenerator = (() => {
         ReviewCards.setItemData(listEl, items);
 
         resultsEl.classList.remove('hidden');
+    }
+
+    function estimateCost(inputTokens, outputTokens) {
+        const inputCost = (inputTokens / 1_000_000) * 3;
+        const outputCost = (outputTokens / 1_000_000) * 15;
+        const total = inputCost + outputCost;
+        return total < 0.01 ? '< $0.01' : `~$${total.toFixed(2)}`;
     }
 
     // =============================================
