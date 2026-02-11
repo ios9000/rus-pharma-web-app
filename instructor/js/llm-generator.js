@@ -422,63 +422,11 @@ const LLMGenerator = (() => {
             metaEl.innerHTML = '';
         }
 
-        // Render items
-        if (items.length === 0) {
-            listEl.innerHTML = '<p class="empty-text">Нет результатов</p>';
-        } else {
-            listEl.innerHTML = items.map(item => renderResultItem(item)).join('');
-        }
+        // Render review cards via ReviewCards module
+        ReviewCards.render(items, listEl);
+        ReviewCards.setItemData(listEl, items);
 
         resultsEl.classList.remove('hidden');
-    }
-
-    function renderResultItem(item) {
-        const typeLabels = {
-            question: 'Вопрос',
-            drug: 'Препарат',
-            flashcard: 'Flash-карточка',
-            scenario: 'Сценарий',
-        };
-
-        const typeIcons = {
-            question: '&#9997;',
-            drug: '&#9883;',
-            flashcard: '&#128196;',
-            scenario: '&#127919;',
-        };
-
-        const label = typeLabels[item.type] || item.type;
-        const icon = typeIcons[item.type] || '&#9632;';
-        const summary = getItemSummary(item);
-
-        return `
-            <div class="gen-result-item" data-type="${item.type}">
-                <div class="gen-result-header">
-                    <span class="gen-result-icon">${icon}</span>
-                    <span class="gen-result-type">${label}</span>
-                    <span class="gen-result-status status-badge">draft</span>
-                </div>
-                <div class="gen-result-body">${escapeHtml(summary)}</div>
-            </div>
-        `;
-    }
-
-    function getItemSummary(item) {
-        const c = item.content;
-        if (!c) return '(пусто)';
-
-        switch (item.type) {
-            case 'question':
-                return c.text || '(без текста)';
-            case 'drug':
-                return `${c.name_ru || ''} — ${c.drug_group || ''}`;
-            case 'flashcard':
-                return `[${c.item_type || ''}] ${c.name_ru || ''}`;
-            case 'scenario':
-                return c.situation ? c.situation.substring(0, 150) + '...' : '(без описания)';
-            default:
-                return JSON.stringify(c).substring(0, 100);
-        }
     }
 
     // =============================================

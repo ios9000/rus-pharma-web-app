@@ -1565,3 +1565,315 @@ body {
         padding: 24px 16px;
     }
 }
+
+/* ============================================
+   REVIEW CARDS
+   ============================================ */
+
+/* --- Bulk actions bar --- */
+.rc-bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: var(--clr-bg);
+    border-radius: var(--radius);
+    flex-wrap: wrap;
+}
+
+.rc-bulk-stats {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--clr-text-secondary);
+}
+
+/* --- Group headings --- */
+.rc-group {
+    margin-bottom: 24px;
+}
+
+.rc-group-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--clr-text);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rc-group-icon {
+    font-size: 18px;
+}
+
+/* --- Card --- */
+.rc-card {
+    background: var(--clr-surface);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    transition: box-shadow var(--transition), border-color var(--transition);
+}
+
+.rc-card:hover {
+    box-shadow: var(--shadow-sm);
+}
+
+/* Status variants */
+.rc-status-draft {
+    border-left: 3px solid #f59e0b;
+}
+
+.rc-status-approved {
+    border-left: 3px solid var(--clr-success);
+    opacity: 0.75;
+}
+
+.rc-status-rejected {
+    border-left: 3px solid var(--clr-error);
+    opacity: 0.5;
+}
+
+/* Card header */
+.rc-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--clr-border);
+}
+
+.rc-card-type {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.rc-card-status {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #fffbeb;
+    color: #92400e;
+}
+
+.rc-status-approved .rc-card-status {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.rc-status-rejected .rc-card-status {
+    background: var(--clr-error-bg);
+    color: var(--clr-error);
+}
+
+/* Card body */
+.rc-card-body {
+    padding: 16px;
+}
+
+/* Card actions */
+.rc-card-actions {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--clr-border);
+}
+
+/* --- Loading state --- */
+.rc-loading {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* --- Editing state --- */
+.rc-editing {
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* --- Content type: question/scenario options --- */
+.rc-question-text,
+.rc-scenario-situation {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--clr-text);
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+.rc-scenario-question {
+    font-size: 14px;
+    color: var(--clr-text);
+    margin-bottom: 12px;
+}
+
+.rc-options {
+    margin-bottom: 12px;
+}
+
+.rc-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    color: var(--clr-text);
+    margin-bottom: 4px;
+    background: var(--clr-bg);
+}
+
+.rc-option-correct {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+}
+
+.rc-option-marker {
+    flex-shrink: 0;
+    font-size: 13px;
+    margin-top: 1px;
+}
+
+.rc-option-correct .rc-option-marker {
+    color: var(--clr-success);
+    font-weight: 700;
+}
+
+/* Explanation / Rationale */
+.rc-explanation {
+    font-size: 13px;
+    color: var(--clr-text-secondary);
+    background: #f8fafc;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+/* Meta row (difficulty, category) */
+.rc-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--clr-text-secondary);
+}
+
+.rc-meta-row span {
+    background: var(--clr-bg);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* --- Content type: drug/flashcard fields --- */
+.rc-drug-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--clr-text);
+    margin-bottom: 12px;
+}
+
+.rc-drug-lat {
+    font-weight: 400;
+    color: var(--clr-text-secondary);
+    font-size: 14px;
+}
+
+.rc-flash-type {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #ca8a04;
+    background: #fefce8;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.rc-field {
+    font-size: 14px;
+    color: var(--clr-text);
+    margin-bottom: 6px;
+    line-height: 1.5;
+}
+
+.rc-field-label {
+    font-weight: 600;
+    color: var(--clr-text-secondary);
+    font-size: 13px;
+}
+
+.rc-field-notes {
+    font-size: 13px;
+    color: var(--clr-text);
+    background: #fefce8;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    margin-top: 8px;
+    line-height: 1.5;
+    border: 1px solid #fde68a;
+}
+
+/* --- Edit mode form elements --- */
+.rc-edit-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.rc-edit-option label {
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.rc-edit-option input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--clr-primary);
+    cursor: pointer;
+}
+
+.rc-edit-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1.5px solid var(--clr-border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--clr-text);
+    background: var(--clr-surface);
+    transition: border-color var(--transition);
+}
+
+.rc-edit-input:focus {
+    outline: none;
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+textarea.rc-edit-input {
+    resize: vertical;
+    min-height: 60px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .rc-bulk-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .rc-bulk-stats {
+        margin-left: 0;
+        text-align: center;
+    }
+
+    .rc-card-actions {
+        flex-wrap: wrap;
+    }
+}
