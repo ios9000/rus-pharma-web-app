@@ -67,6 +67,7 @@ const App = (() => {
             instructorsReady = true;
             Instructors.init();
         }
+        // Generation section — no lazy-init needed yet (Phase 2)
 
         // Close mobile sidebar on navigation
         closeMobileMenu();
