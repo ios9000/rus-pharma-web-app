@@ -1236,3 +1236,332 @@ body {
 .fade-in {
     animation: fadeIn 0.3s ease forwards;
 }
+
+/* ============================================
+   GENERATION SECTION
+   ============================================ */
+
+.gen-card {
+    background: var(--clr-surface);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.gen-card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--clr-text);
+    margin-bottom: 20px;
+}
+
+/* --- Upload zone --- */
+.gen-upload-zone {
+    border: 2px dashed var(--clr-border);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color var(--transition), background var(--transition);
+}
+
+.gen-upload-zone:hover,
+.gen-upload-zone.dragover {
+    border-color: var(--clr-primary);
+    background: rgba(37, 99, 235, 0.04);
+}
+
+.gen-upload-zone.extracting {
+    border-color: var(--clr-primary);
+    background: rgba(37, 99, 235, 0.04);
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.gen-upload-icon {
+    font-size: 36px;
+    margin-bottom: 8px;
+    opacity: 0.6;
+}
+
+.gen-upload-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--clr-text);
+    margin-bottom: 4px;
+}
+
+.gen-upload-hint {
+    font-size: 12px;
+    color: var(--clr-text-secondary);
+}
+
+/* --- File info --- */
+.gen-file-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: var(--radius);
+}
+
+.gen-file-name {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--clr-text);
+}
+
+.gen-file-clear {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: none;
+    font-size: 14px;
+    color: var(--clr-text-secondary);
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition), color var(--transition);
+}
+
+.gen-file-clear:hover {
+    background: var(--clr-error-bg);
+    color: var(--clr-error);
+}
+
+/* --- Divider --- */
+.gen-divider {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    gap: 12px;
+}
+
+.gen-divider::before,
+.gen-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--clr-border);
+}
+
+.gen-divider span {
+    font-size: 13px;
+    color: var(--clr-text-secondary);
+}
+
+/* --- Textarea --- */
+.gen-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--clr-border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--clr-text);
+    background: var(--clr-surface);
+    resize: vertical;
+    min-height: 120px;
+    transition: border-color var(--transition);
+}
+
+.gen-textarea:focus {
+    outline: none;
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.gen-textarea:disabled {
+    background: #f8fafc;
+    color: var(--clr-text-secondary);
+}
+
+/* --- Text stats --- */
+.gen-text-stats {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+}
+
+.gen-text-ok {
+    color: var(--clr-success);
+    background: #f0fdf4;
+}
+
+.gen-text-short {
+    color: #b45309;
+    background: #fffbeb;
+}
+
+/* --- Type checkboxes grid --- */
+.gen-type-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.gen-type-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--clr-border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--clr-text);
+    transition: border-color var(--transition), background var(--transition);
+}
+
+.gen-type-option:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+.gen-type-option input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--clr-primary);
+    cursor: pointer;
+}
+
+.gen-type-option input[type="checkbox"]:checked + span {
+    font-weight: 600;
+}
+
+/* --- Count hint --- */
+.gen-count-hint {
+    display: block;
+    font-size: 12px;
+    color: var(--clr-text-secondary);
+    margin-top: 4px;
+}
+
+/* --- Submit button --- */
+.gen-submit-btn {
+    width: 100%;
+    padding: 14px 24px;
+    font-size: 15px;
+    margin-top: 8px;
+}
+
+.gen-submit-btn:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+}
+
+/* --- Progress indicator --- */
+.gen-progress {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 24px;
+    text-align: center;
+}
+
+.gen-progress-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--clr-border);
+    border-top-color: var(--clr-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 16px;
+}
+
+.gen-progress-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--clr-text);
+    margin-bottom: 4px;
+}
+
+.gen-progress-hint {
+    font-size: 13px;
+    color: var(--clr-text-secondary);
+}
+
+/* --- Results --- */
+.gen-results-notice {
+    padding: 10px 14px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: var(--radius);
+    font-size: 13px;
+    color: #92400e;
+    margin-bottom: 16px;
+}
+
+.gen-results-meta {
+    margin-bottom: 4px;
+}
+
+.gen-result-item {
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    transition: box-shadow var(--transition);
+}
+
+.gen-result-item:hover {
+    box-shadow: var(--shadow-sm);
+}
+
+.gen-result-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.gen-result-icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.gen-result-type {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--clr-text-secondary);
+}
+
+.gen-result-status {
+    margin-left: auto;
+    background: #fffbeb;
+    color: #92400e;
+}
+
+.gen-result-body {
+    font-size: 14px;
+    color: var(--clr-text);
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .gen-type-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gen-card {
+        padding: 16px;
+    }
+
+    .gen-upload-zone {
+        padding: 24px 16px;
+    }
+}
