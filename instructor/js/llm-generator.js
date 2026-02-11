@@ -360,6 +360,7 @@ const LLMGenerator = (() => {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,
+                        'apikey': SUPABASE_ANON_KEY,
                     },
                     body: JSON.stringify({
                         text: extractedText,
