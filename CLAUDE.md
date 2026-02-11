@@ -62,6 +62,7 @@ rus-pharma-web-app/
 │
 ├── css/                       ← стили, разделены по модулям
 ├── js/                        ← модули приложения (см. ниже)
+│   ├── supabase-client.js        ← инициализация Supabase для студенческого фронтенда
 ├── instructor/                    ← кабинет инструктора (SPA)
 │   ├── index.html
 │   ├── css/instructor.css
@@ -118,6 +119,18 @@ rus-pharma-web-app/
 - `sync_log` — лог синхронизации (автоматический через триггеры)
 - `generated_content` — сгенерированный LLM-контент (id, generation_id, type, content JSONB, status: draft|approved|rejected, competency_id, instructor_id, approved_target_id). RLS: инструктор видит только свои
 - `generation_log` — лог запросов к Claude API (generation_id, source_text_length, types_requested, tokens_input, tokens_output, model, duration_ms, status, error_message). RLS: инструктор видит только свои
+- `course_levels` — 3 уровня курсов (id SERIAL, level_number, name, description). RLS: все читают
+- `course_modules` — 20 модулей в 4 блоках (id SERIAL, module_number, block_number, block_name, module_name, description, sort_order). RLS: все читают
+- `course_assignments` — назначения модулей группам (id UUID, group_code TEXT FK→groups, module_id FK→course_modules, status: closed|open|completed). RLS: все читают, инструктор управляет
+- `test_sessions` — сессии тестирования (id UUID, group_code TEXT FK→groups, session_type: entrance|module|final, title, module_id, status: draft|active|closed). RLS: все читают, инструктор управляет
+- `test_session_modules` — модули в сессии (session_id FK→test_sessions, module_id FK→course_modules). RLS: все читают, инструктор управляет
+- `open_answer_questions` — задания с развёрнутым ответом (id UUID, module_id, text, answer_template JSONB, reference_answer, question_subtype: explanation|calculation|scheme|listing). RLS: все читают, инструктор управляет
+- `student_test_results` — ответы курсантов на MC (session_id, cadet_id TEXT, group_code TEXT FK→groups, question_id FK→questions, selected_option, is_correct). RLS: все вставляют и читают
+- `student_open_answers` — ответы на развёрнутые вопросы (session_id, cadet_id TEXT, group_code TEXT FK→groups, question_id FK→open_answer_questions, answers JSONB, instructor_grade, instructor_comment). RLS: все вставляют/читают, инструктор обновляет
+
+**Расширенные колонки (итерация 006):**
+- `groups.course_level_id` INT FK→course_levels — уровень курса группы
+- `questions.module_id` INT FK→course_modules — привязка вопроса к модулю
 
 **Auth:** Email provider, роль instructor в user_metadata
 
@@ -177,7 +190,7 @@ rus-pharma-web-app/
 ## Текущая итерация
 
 Завершена: **005 — LLM Automation** (см. docs/iterations/005_llm-automation/)
-Следующая: **006 — Structured Testing** (см. docs/iterations/006_structured-testing/)
+Текущая: **006 — Structured Testing** (Фаза 1: БД + миграция выполнена, см. docs/iterations/006_structured-testing/)
 
 ---
 

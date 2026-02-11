@@ -28,7 +28,7 @@
               │      SUPABASE         │
               │  ┌─────────────────┐  │
               │  │ course_levels   │  │
-              │  │ student_groups  │  │
+              │  │ groups (ext)    │  │
               │  │ course_assign.  │  │
               │  │ test_sessions   │  │
               │  │ open_answers    │  │
@@ -111,39 +111,38 @@ INSERT INTO course_modules (module_number, block_number, block_name, module_name
   (17, 3, 'Неотложные состояния', 'Инфаркт и инсульт', 'FAST и первая помощь', 17),
   (18, 3, 'Неотложные состояния', 'Детоксикация', 'Методы и препараты', 18),
   (19, 4, 'Боевая травма', 'Огнестрельные раны', 'Особенности фармакотерапии', 19),
-  (20, 4, 'Боевая травма', 'Ожоги', 'Расчёт инфузии, анальгезия, местное лечение', 20),
-  (21, 2, 'Специальные препараты и критические состояния', 'Дополнительный модуль', '', 21);
+  (20, 4, 'Боевая травма', 'Ожоги', 'Расчёт инфузии, анальгезия, местное лечение', 20);
 
 
--- 3. Группы курсантов
+-- 3. Расширение существующей таблицы groups
 -- ---------------------------------------------------------------
-CREATE TABLE student_groups (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  group_code TEXT NOT NULL UNIQUE,  -- совместимость с Google Sheets (PHARMA-0126)
-  name TEXT NOT NULL,
-  course_level_id INT REFERENCES course_levels(id),
-  instructor_name TEXT,  -- совместимость с GSheets (Преподаватель Овсянников)
-  max_cadets INT DEFAULT 30,
-  is_active BOOLEAN DEFAULT true,
-  created_by UUID REFERENCES auth.users(id),
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
+-- Таблица groups уже существует: (code TEXT PK, name, instructor, max_cadets, is_active, created_at)
+-- Добавляем поле course_level_id
 
-COMMENT ON TABLE student_groups IS 'Группы курсантов. Совместимость с GSheets: group_code, instructor_name';
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'groups' AND column_name = 'course_level_id'
+  ) THEN
+    ALTER TABLE groups ADD COLUMN course_level_id INT REFERENCES course_levels(id);
+  END IF;
+END $$;
+
+COMMENT ON COLUMN groups.course_level_id IS 'FK на course_levels — уровень курса группы';
 
 
 -- 4. Назначения модулей группам (какие модули открыты)
 -- ---------------------------------------------------------------
 CREATE TABLE course_assignments (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  group_id UUID NOT NULL REFERENCES student_groups(id) ON DELETE CASCADE,
+  group_code TEXT NOT NULL REFERENCES groups(code) ON DELETE CASCADE,
   module_id INT NOT NULL REFERENCES course_modules(id),
   status TEXT NOT NULL DEFAULT 'closed' CHECK (status IN ('closed', 'open', 'completed')),
   opened_at TIMESTAMPTZ,
   closed_at TIMESTAMPTZ,
   opened_by UUID REFERENCES auth.users(id),
-  UNIQUE(group_id, module_id)
+  UNIQUE(group_code, module_id)
 );
 
 COMMENT ON TABLE course_assignments IS 'Какие модули открыты/закрыты для какой группы';
@@ -153,7 +152,7 @@ COMMENT ON TABLE course_assignments IS 'Какие модули открыты/�
 -- ---------------------------------------------------------------
 CREATE TABLE test_sessions (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  group_id UUID NOT NULL REFERENCES student_groups(id) ON DELETE CASCADE,
+  group_code TEXT NOT NULL REFERENCES groups(code) ON DELETE CASCADE,
   session_type TEXT NOT NULL CHECK (session_type IN ('entrance', 'module', 'final')),
   title TEXT NOT NULL,
   module_id INT REFERENCES course_modules(id),  -- NULL для входного/финального
@@ -211,7 +210,7 @@ CREATE TABLE student_test_results (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   session_id UUID REFERENCES test_sessions(id),
   cadet_id TEXT NOT NULL,  -- формат: CMK48HI0HC44Q (совместимость с GSheets)
-  group_id UUID NOT NULL REFERENCES student_groups(id),
+  group_code TEXT NOT NULL REFERENCES groups(code),
   question_id UUID NOT NULL REFERENCES questions(id),
   selected_option INT,
   is_correct BOOLEAN,
@@ -227,7 +226,7 @@ CREATE TABLE student_open_answers (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   session_id UUID REFERENCES test_sessions(id),
   cadet_id TEXT NOT NULL,  -- формат: CMK48HI0HC44Q
-  group_id UUID NOT NULL REFERENCES student_groups(id),
+  group_code TEXT NOT NULL REFERENCES groups(code),
   question_id UUID NOT NULL REFERENCES open_answer_questions(id),
   answers JSONB DEFAULT '{}',
   instructor_grade TEXT CHECK (instructor_grade IN ('accepted', 'needs_work', NULL)),
@@ -258,10 +257,6 @@ COMMENT ON COLUMN questions.module_id IS 'FK на course_modules — привя�
 
 -- 11. Триггеры updated_at
 -- ---------------------------------------------------------------
-CREATE TRIGGER student_groups_updated_at
-  BEFORE UPDATE ON student_groups
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-
 CREATE TRIGGER open_answer_questions_updated_at
   BEFORE UPDATE ON open_answer_questions
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
@@ -269,10 +264,10 @@ CREATE TRIGGER open_answer_questions_updated_at
 
 -- 12. Индексы
 -- ---------------------------------------------------------------
-CREATE INDEX idx_course_assignments_group ON course_assignments(group_id);
-CREATE INDEX idx_test_sessions_group ON test_sessions(group_id);
+CREATE INDEX idx_course_assignments_group ON course_assignments(group_code);
+CREATE INDEX idx_test_sessions_group ON test_sessions(group_code);
 CREATE INDEX idx_student_results_session ON student_test_results(session_id);
-CREATE INDEX idx_student_results_student ON student_test_results(cadet_id, group_id);
+CREATE INDEX idx_student_results_student ON student_test_results(cadet_id, group_code);
 CREATE INDEX idx_student_open_answers_session ON student_open_answers(session_id);
 CREATE INDEX idx_questions_module ON questions(module_id);
 ```
@@ -292,13 +287,14 @@ CREATE POLICY "course_levels_read" ON course_levels FOR SELECT USING (true);
 ALTER TABLE course_modules ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "course_modules_read" ON course_modules FOR SELECT USING (true);
 
--- student_groups: инструктор управляет, все читают
-ALTER TABLE student_groups ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "student_groups_read" ON student_groups FOR SELECT USING (true);
-CREATE POLICY "student_groups_manage" ON student_groups FOR ALL USING (
-  auth.jwt() ->> 'role' = 'instructor' 
-  OR (auth.jwt() -> 'user_metadata' ->> 'role') = 'instructor'
-);
+-- groups: таблица уже существует, RLS уже настроен.
+-- Если RLS не включён — включить:
+-- ALTER TABLE groups ENABLE ROW LEVEL SECURITY;
+-- CREATE POLICY "groups_read" ON groups FOR SELECT USING (true);
+-- CREATE POLICY "groups_manage" ON groups FOR ALL USING (
+--   auth.jwt() ->> 'role' = 'instructor' 
+--   OR (auth.jwt() -> 'user_metadata' ->> 'role') = 'instructor'
+-- );
 
 -- course_assignments: инструктор управляет, все читают
 ALTER TABLE course_assignments ENABLE ROW LEVEL SECURITY;
@@ -349,16 +345,46 @@ CREATE POLICY "student_open_answers_grade" ON student_open_answers FOR UPDATE US
 
 ---
 
-## 3. API — ключевые запросы
+## 3. Подключение Supabase к студенческому фронтенду
+
+### CDN (как в instructor)
+```html
+<!-- index.html — добавить перед </head> или перед app скриптами -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+```
+
+Инициализация — в `js/course-data.js`:
+```javascript
+const supabaseUrl = 'https://otoxfxwwdbeblwpizlbi.supabase.co';
+const supabaseAnonKey = '...'; // тот же anon key, что в instructor/js/supabase-config.js
+const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+```
+
+### Нормализация competencyId
+При объединении вопросов из GSheets и Supabase — нормализовать:
+```javascript
+const COMPETENCY_ALIASES = { 'BASE_PHARMA': 'PHARMACOLOGY_BASICS' };
+function normalizeCompetency(id) {
+  return COMPETENCY_ALIASES[id] || id;
+}
+```
+
+---
+
+## 4. API — ключевые запросы
 
 ### 3.1 Сторона курсанта
 
 ```javascript
+// Получить группу по group_code (из AuthModule)
+const groupCode = AuthModule.getCurrentCadet().groupCode; // 'PHARMA-0126'
+const cadetId = AuthModule.getCurrentCadet().id; // 'CMK48HI0HC44Q'
+
 // Получить открытые модули для группы
 const { data: assignments } = await supabase
   .from('course_assignments')
   .select('*, course_modules(*)')
-  .eq('group_id', groupId)
+  .eq('group_code', groupCode)
   .eq('status', 'open');
 
 // Получить вопросы multiple choice по модулю
@@ -376,32 +402,32 @@ const { data: openQuestions } = await supabase
 
 // Сохранить ответ на MC вопрос
 await supabase.from('student_test_results').insert({
-  session_id, cadet_id, group_id, question_id, 
+  session_id, cadet_id, group_code, question_id, 
   selected_option, is_correct
 });
 
 // Сохранить развёрнутый ответ
 await supabase.from('student_open_answers').insert({
-  session_id, cadet_id, group_id, question_id, answers: { field_0: '...', field_1: '...' }
+  session_id, cadet_id, group_code, question_id, answers: { field_0: '...', field_1: '...' }
 });
 ```
 
 ### 3.2 Сторона инструктора
 
 ```javascript
-// Создать группу
-await supabase.from('student_groups').insert({
-  name: 'Фармакология-2025', course_level_id: 3
-});
+// Обновить группу — добавить уровень курса
+await supabase.from('groups')
+  .update({ course_level_id: 3 })
+  .eq('code', 'PHARMA-0126');
 
 // Открыть модуль для группы
 await supabase.from('course_assignments').upsert({
-  group_id, module_id, status: 'open', opened_at: new Date().toISOString()
+  group_code: 'PHARMA-0126', module_id, status: 'open', opened_at: new Date().toISOString()
 });
 
 // Создать тестовую сессию
 const { data: session } = await supabase.from('test_sessions').insert({
-  group_id, session_type: 'module', title: 'Модуль 1 — тест', 
+  group_code, session_type: 'module', title: 'Модуль 1 — тест', 
   module_id: 1, status: 'active'
 }).select().single();
 
@@ -409,13 +435,13 @@ const { data: session } = await supabase.from('test_sessions').insert({
 const { data: results } = await supabase
   .from('student_test_results')
   .select('cadet_id, is_correct, question_id')
-  .eq('group_id', groupId)
+  .eq('group_code', groupId)
   .eq('session_id', sessionId);
 ```
 
 ---
 
-## 4. UI — описание экранов
+## 5. UI — описание экранов
 
 ### 4.1 Курсант: выбор модуля (замена текущего test-selector.js)
 
@@ -531,7 +557,7 @@ const { data: results } = await supabase
 
 ---
 
-## 5. Ключевые файлы проекта (изменения)
+## 6. Ключевые файлы проекта (изменения)
 
 ### Новые файлы:
 ```
@@ -556,7 +582,7 @@ instructor/index.html           — ссылка на course-management
 
 ---
 
-## 6. Идентификация курсанта
+## 7. Идентификация курсанта
 
 ### Существующая система (Google Sheets)
 В Google Sheets **уже работает** PIN-авторизация:
@@ -596,7 +622,7 @@ instructor/index.html           — ссылка на course-management
 
 ---
 
-## 7. Маппинг вопросов по модулям
+## 8. Маппинг вопросов по модулям
 
 ### Результаты аудита
 
@@ -650,7 +676,7 @@ WHERE (module IS NULL OR module = '' OR module = 'ФАРМАКОЛОГИЧЕСК
 
 ---
 
-## 8. Фазы реализации для Claude Code
+## 9. Фазы реализации для Claude Code
 
 ### Фаза 0: Аудит и подготовка (0.5 дня)
 **Аудит данных ВЫПОЛНЕН** (этот чат). Результаты — в разделе 7 этого документа.
@@ -691,28 +717,39 @@ WHERE (module IS NULL OR module = '' OR module = 'ФАРМАКОЛОГИЧЕСК
 ```
 Прочитай docs/iterations/006_structured-testing/design.md (раздел 2: Схема БД).
 
+ВАЖНО: Таблица groups уже существует (code TEXT PK). НЕ создавай student_groups.
+Вместо этого — ALTER TABLE groups ADD COLUMN course_level_id.
+Модуль 21 убран — только модули 1-20.
+
 Задачи:
 1. Выполни SQL миграцию из design.md:
-   - Создай таблицы: course_levels, course_modules, student_groups, 
+   - Создай таблицы: course_levels, course_modules, 
      course_assignments, test_sessions, test_session_modules,
      open_answer_questions, student_test_results, student_open_answers
-   - Добавь поле module_id в questions
+   - ALTER TABLE groups ADD COLUMN course_level_id (если нет)
+   - Добавь поле module_id в questions (если нет)
    - Настрой RLS
    - Создай индексы
 
-2. Напиши скрипт маппинга вопросов:
-   - На основе audit-report.md из Фазы 0
-   - UPDATE questions SET module_id = X WHERE section = 'Y' AND ...
-   - Результат: все 88 вопросов имеют module_id (или помечены как unmatched)
+2. Маппинг вопросов (только 7 [SB] в Supabase):
+   - UPDATE questions SET module_id = (SELECT id FROM course_modules WHERE module_number = 1)
+     WHERE module IS NULL OR module = 'ФАРМАКОЛОГИЧЕСКИЕ ОСНОВЫ';
+   - 81 вопрос в GSheets уже имеют числовой модуль — они маппятся на клиенте
 
-3. Обнови .claude/CLAUDE.md — добавь новые таблицы
-4. Создай docs/iterations/006_structured-testing/session-log-phase1.md
+3. Подключи Supabase CDN в index.html:
+   - <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+   - Создай js/supabase-client.js (URL + anon key из instructor/js/supabase-config.js)
+
+4. ИСПРАВЬ: instructor/js/supabase-config.js — URL должен быть .co НЕ .com
+
+5. Обнови .claude/CLAUDE.md — добавь новые таблицы и изменения
+6. Создай docs/iterations/006_structured-testing/session-log-phase1.md
 ```
 
 ### Фаза 2: Курсант — модули и MC тесты (2 дня)
 **Задание для Claude Code:**
 ```
-Прочитай docs/iterations/006_structured-testing/design.md (разделы 4.1, 4.2, 5, 6, 7, 11).
+Прочитай docs/iterations/006_structured-testing/design.md (разделы 3, 5.1, 5.2, 6, 7, 8, 12).
 
 ВАЖНО: Данные берутся из ДВУХ источников:
 - Google Sheets: 81 вопрос (загружаются через существующий механизм)
@@ -745,7 +782,7 @@ WHERE (module IS NULL OR module = '' OR module = 'ФАРМАКОЛОГИЧЕСК
 ### Фаза 3: Курсант — задания с развёрнутым ответом (1–2 дня)
 **Задание для Claude Code:**
 ```
-Прочитай docs/iterations/006_structured-testing/design.md (разделы 4.3, 6.2).
+Прочитай docs/iterations/006_structured-testing/design.md (разделы 5.3, requirements.md раздел 6.2).
 
 Задачи:
 1. Создай js/open-answer-ui.js:
@@ -767,7 +804,7 @@ WHERE (module IS NULL OR module = '' OR module = 'ФАРМАКОЛОГИЧЕСК
 ### Фаза 4: Инструктор — управление курсом (2 дня)
 **Задание для Claude Code:**
 ```
-Прочитай docs/iterations/006_structured-testing/design.md (разделы 4.4, 3.2, 6, 11).
+Прочитай docs/iterations/006_structured-testing/design.md (разделы 4, 5.4, 7, 12).
 
 ВАЖНО: В Google Sheets УЖЕ есть группы (PHARMA-0126) и курсанты (с cadet_id, PIN).
 Новая страница управления курсом работает С Supabase, но учитывает
@@ -819,7 +856,7 @@ WHERE (module IS NULL OR module = '' OR module = 'ФАРМАКОЛОГИЧЕСК
 
 ---
 
-## 9. Оценка сроков
+## 10. Оценка сроков
 
 | Фаза | Описание | Оценка |
 |------|----------|--------|
@@ -833,7 +870,7 @@ WHERE (module IS NULL OR module = '' OR module = 'ФАРМАКОЛОГИЧЕСК
 
 ---
 
-## 10. Риски и решения
+## 11. Риски и решения
 
 | Риск | Решение |
 |------|---------|
@@ -845,7 +882,7 @@ WHERE (module IS NULL OR module = '' OR module = 'ФАРМАКОЛОГИЧЕСК
 
 ---
 
-## 11. Совместимость с Google Sheets
+## 12. Совместимость с Google Sheets
 
 ### Что сохраняется без изменений
 - Лист «Вопросы»: 88 вопросов, поле Модуль (числовое)
