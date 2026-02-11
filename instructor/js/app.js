@@ -9,6 +9,7 @@ const App = (() => {
     let groupsReady = false;
     let cadetsReady = false;
     let instructorsReady = false;
+    let generationReady = false;
 
     function init() {
         if (initialized) return;
@@ -67,7 +68,12 @@ const App = (() => {
             instructorsReady = true;
             Instructors.init();
         }
-        // Generation section — no lazy-init needed yet (Phase 2)
+        if (sectionId === 'generation' && !generationReady) {
+            generationReady = true;
+            if (typeof LLMGenerator !== 'undefined') {
+                LLMGenerator.init();
+            }
+        }
 
         // Close mobile sidebar on navigation
         closeMobileMenu();
