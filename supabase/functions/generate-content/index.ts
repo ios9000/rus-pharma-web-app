@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const CLAUDE_API_KEY = Deno.env.get("CLAUDE_API_KEY");
-const CLAUDE_MODEL = "claude-sonnet-4-5-20250514";
+const CLAUDE_MODEL = "claude-sonnet-4-20250514";
 const MAX_TOKENS = 4096;
 const MAX_TEXT_LENGTH = 100_000;
 const CLAUDE_TIMEOUT_MS = 90_000;
