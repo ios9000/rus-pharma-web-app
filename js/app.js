@@ -45,6 +45,18 @@ function showSection(sectionId) {
         document.getElementById('activeScenario').style.display = 'none';
         document.getElementById('scenarioResult').style.display = 'none';
     }
+
+    if (sectionId === 'test') {
+        // Skip if startTest/startModuleTest is handling rendering
+        var starting = (typeof _startingTest !== 'undefined' && _startingTest);
+        if (!starting) {
+            if (typeof CourseData !== 'undefined' && CourseData.isLoaded() && typeof ModuleSelector !== 'undefined') {
+                ModuleSelector.render();
+            } else if (typeof renderTestQuestion === 'function') {
+                renderTestQuestion();
+            }
+        }
+    }
     
     // === ИСПРАВЛЕНИЕ: Рендер матрицы прогресса ===
     if (sectionId === 'progress') {

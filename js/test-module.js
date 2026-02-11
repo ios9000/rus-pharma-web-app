@@ -16,6 +16,13 @@ let competencyResults = {};
 // Выбранные ответы для multiple-choice
 let selectedAnswers = new Set();
 
+// Module test state
+let currentModuleNumber = null;
+let moduleTestQuestions = [];
+
+// Flag to suppress ModuleSelector during test startup
+let _startingTest = false;
+
 // ============================================
 // ОПРЕДЕЛЕНИЕ ТИПА ВОПРОСА
 // ============================================
@@ -53,6 +60,8 @@ function resetTestState() {
     testResults = [];
     competencyResults = {};
     selectedAnswers = new Set();
+    currentModuleNumber = null;
+    moduleTestQuestions = [];
 }
 
 // Кнопка "В меню" (Сброс + Выход)
@@ -67,7 +76,7 @@ function quitTest() {
 // ============================================
 
 function renderTestQuestion() {
-    const questions = appData.questions;
+    const questions = currentModuleNumber ? moduleTestQuestions : appData.questions;
     const container = document.getElementById('test') || document.querySelector('.test-container');
     if (!container) return;
 
@@ -507,7 +516,8 @@ function checkMultipleAnswer(question, container) {
     testResults.push({
         questionId: question.id,
         competency: competency,
-        isCorrect: isFullyCorrect
+        isCorrect: isFullyCorrect,
+        selectedAnswers: Array.from(selectedAnswers)
     });
 
     // Обновляем статистику по компетенциям
@@ -566,11 +576,12 @@ function checkTestAnswer(selectedIndex, question, container) {
 
     // Сохраняем результат с компетенцией
     const competency = question.competency || 'UNKNOWN';
-    
+
     testResults.push({
         questionId: question.id,
         competency: competency,
-        isCorrect: isCorrect
+        isCorrect: isCorrect,
+        selectedIndex: selectedIndex
     });
 
     // Обновляем статистику по компетенциям
@@ -609,7 +620,7 @@ function nextTestQuestion() {
 // ============================================
 
 function showTestResult(container) {
-    const questions = appData.questions;
+    const questions = currentModuleNumber ? moduleTestQuestions : appData.questions;
     const finalScorePercent = Math.round((testScore / questions.length) * 100);
     
     // Рассчитываем проценты по компетенциям
@@ -658,20 +669,35 @@ function showTestResult(container) {
     // Обновляем прогресс
     if (typeof updateProgress === 'function') updateProgress();
 
+    // Save module progress if this was a module test
+    if (currentModuleNumber && typeof ModuleSelector !== 'undefined') {
+        var cadet = (typeof AuthModule !== 'undefined' && AuthModule.getCurrentCadet)
+            ? AuthModule.getCurrentCadet() : null;
+        ModuleSelector.saveProgress(cadet ? cadet.id : null, currentModuleNumber, testScore, questions.length);
+    }
+
+    // Save results to Supabase (async, non-blocking)
+    saveResultsToSupabase(testResults);
+
     // === ОТОБРАЖЕНИЕ РЕЗУЛЬТАТОВ ===
-    
+
     const emoji = finalScorePercent >= 80 ? '🏆' : (finalScorePercent >= 50 ? '🙂' : '📚');
-    const message = finalScorePercent >= 80 
-        ? 'Отличный результат!' 
+    const message = finalScorePercent >= 80
+        ? 'Отличный результат!'
         : (finalScorePercent >= 50 ? 'Хороший результат!' : 'Нужно подтянуть знания');
+
+    const moduleTitle = currentModuleNumber ? ('Модуль ' + currentModuleNumber) : '';
+    const backToModulesBtn = (typeof CourseData !== 'undefined' && CourseData.isLoaded())
+        ? '<button onclick="backToModuleSelector()" style="padding: 15px; background: #17a2b8; color: white; border: none; border-radius: 10px; font-size: 16px; width: 100%; cursor: pointer; margin-bottom: 10px;">📚 К списку модулей</button>'
+        : '';
 
     container.innerHTML = `
         <div style="text-align: center; padding: 20px 10px;">
             <div style="font-size: 60px; margin-bottom: 15px;">${emoji}</div>
-            
-            <h2 style="color: #1a3a52; margin-bottom: 10px;">Тест завершен!</h2>
+
+            <h2 style="color: #1a3a52; margin-bottom: 10px;">Тест завершен!${moduleTitle ? ' (' + moduleTitle + ')' : ''}</h2>
             <p style="color: #666; margin-bottom: 20px;">${message}</p>
-            
+
             <!-- Общий результат -->
             <div style="background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 20px;">
                 <div style="font-size: 42px; font-weight: bold; color: ${finalScorePercent >= 70 ? '#28a745' : '#dc3545'};">
@@ -679,7 +705,7 @@ function showTestResult(container) {
                 </div>
                 <p style="margin-top: 10px; color: #666;">${testScore} из ${questions.length} правильных ответов</p>
             </div>
-            
+
             <!-- Результаты по компетенциям -->
             <div style="background: #1e2a38; border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: left;">
                 <h4 style="color: #fff; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
@@ -687,19 +713,21 @@ function showTestResult(container) {
                 </h4>
                 ${renderCompetencyResults(competencyScores)}
             </div>
-            
+
             <!-- Кнопки -->
-            <button onclick="initTestModule()" 
+            ${backToModulesBtn}
+
+            <button onclick="${currentModuleNumber ? 'startModuleTest(' + currentModuleNumber + ')' : 'initTestModule()'}"
                     style="padding: 15px 30px; background: #0056b3; color: white; border: none; border-radius: 10px; font-size: 18px; width: 100%; cursor: pointer; margin-bottom: 10px;">
                 Пройти заново ↻
             </button>
-            
-            <button onclick="showSection('progress')" 
+
+            <button onclick="showSection('progress')"
                     style="padding: 15px; background: #28a745; color: white; border: none; border-radius: 10px; font-size: 16px; width: 100%; cursor: pointer; margin-bottom: 10px;">
                 📊 Посмотреть матрицу прогресса
             </button>
-            
-            <button onclick="quitTest()" 
+
+            <button onclick="quitTest()"
                     style="padding: 15px; background: transparent; color: #666; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; width: 100%; cursor: pointer;">
                 В меню
             </button>
@@ -828,17 +856,122 @@ function saveToProgressMatrix(competencyScores, testType) {
 function startTest(testType) {
     currentTestType = testType || 'DIAGNOSTIC';
     resetTestState();
-    
-    // В будущем здесь можно фильтровать вопросы по типу теста
-    // Пока используем все вопросы
-    
+
     console.log(`🎯 Запуск теста: ${currentTestType}`);
-    
+
+    _startingTest = true;
     showSection('test');
+    _startingTest = false;
     renderTestQuestion();
+}
+
+// ============================================
+// ЗАПУСК ТЕСТА ПО МОДУЛЮ
+// ============================================
+
+function startModuleTest(moduleNumber) {
+    if (typeof CourseData === 'undefined') {
+        console.error('[startModuleTest] CourseData not available');
+        return;
+    }
+
+    var questions = CourseData.getModuleQuestions(moduleNumber);
+    if (!questions || questions.length === 0) {
+        alert('Нет вопросов для модуля ' + moduleNumber);
+        return;
+    }
+
+    // Shuffle questions
+    moduleTestQuestions = shuffleModuleQuestions(questions.slice());
+    currentModuleNumber = moduleNumber;
+    currentTestType = 'MODULE_' + moduleNumber;
+    currentTestQuestion = 0;
+    testScore = 0;
+    testResults = [];
+    competencyResults = {};
+    selectedAnswers = new Set();
+
+    console.log('📚 Запуск теста модуля ' + moduleNumber + ': ' + moduleTestQuestions.length + ' вопросов');
+
+    _startingTest = true;
+    showSection('test');
+    _startingTest = false;
+    renderTestQuestion();
+}
+
+function shuffleModuleQuestions(arr) {
+    for (var i = arr.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+    return arr;
+}
+
+// ============================================
+// ВОЗВРАТ К СПИСКУ МОДУЛЕЙ
+// ============================================
+
+function backToModuleSelector() {
+    currentModuleNumber = null;
+    moduleTestQuestions = [];
+    if (typeof ModuleSelector !== 'undefined') {
+        ModuleSelector.render();
+    }
+}
+
+// ============================================
+// СОХРАНЕНИЕ РЕЗУЛЬТАТОВ В SUPABASE
+// ============================================
+
+/**
+ * UUID pattern regex for filtering saveable questions
+ */
+var UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function saveResultsToSupabase(results) {
+    if (!window.supabaseClient) return;
+
+    var cadet = (typeof AuthModule !== 'undefined' && AuthModule.getCurrentCadet)
+        ? AuthModule.getCurrentCadet() : null;
+    if (!cadet || !cadet.id || !cadet.groupCode) return;
+
+    // Filter: only save questions with UUID id (Supabase questions)
+    var saveable = results.filter(function(r) {
+        return r.questionId && UUID_PATTERN.test(r.questionId);
+    });
+
+    if (saveable.length === 0) return;
+
+    var rows = saveable.map(function(r) {
+        return {
+            cadet_id: cadet.id,
+            group_code: cadet.groupCode,
+            question_id: r.questionId,
+            selected_option: r.selectedIndex !== undefined ? r.selectedIndex : null,
+            is_correct: r.isCorrect
+        };
+    });
+
+    window.supabaseClient
+        .from('student_test_results')
+        .insert(rows)
+        .then(function(res) {
+            if (res.error) {
+                console.warn('[saveResultsToSupabase] Error:', res.error);
+            } else {
+                console.log('[saveResultsToSupabase] Saved ' + rows.length + ' results');
+            }
+        })
+        .catch(function(err) {
+            console.warn('[saveResultsToSupabase] Failed:', err);
+        });
 }
 
 // Экспорт для глобального доступа
 if (typeof window !== 'undefined') {
     window.startTest = startTest;
+    window.startModuleTest = startModuleTest;
+    window.backToModuleSelector = backToModuleSelector;
 }

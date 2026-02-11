@@ -3,7 +3,7 @@
 // sw.js
 // ============================================
 
-const CACHE_NAME = 'pharma-v2.0.1';
+const CACHE_NAME = 'pharma-v2.1.0';
 
 const ASSETS_TO_CACHE = [
     './',
@@ -27,6 +27,9 @@ const ASSETS_TO_CACHE = [
     './js/progress-matrix.js',
     './js/progress-matrix-ui.js',
     './js/test-selector.js',
+    './js/course-data.js',
+    './js/module-selector.js',
+    './js/supabase-client.js',
     './js/app.js',
     './js/auth-module.js',
     './js/sync-module.js',
@@ -76,6 +79,12 @@ self.addEventListener('fetch', (event) => {
 
     // API (Google Apps Script) — Network First с fallback на кэш
     if (url.hostname === 'script.google.com') {
+        event.respondWith(networkFirstStrategy(event.request));
+        return;
+    }
+
+    // Supabase API — Network First
+    if (url.hostname === 'otoxfxwwdbeblwpizlbi.supabase.co') {
         event.respondWith(networkFirstStrategy(event.request));
         return;
     }

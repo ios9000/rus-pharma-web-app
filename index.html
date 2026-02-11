@@ -73,33 +73,9 @@
             </div>
         </section>
 
-        <!-- МОДУЛЬ ТЕСТОВ С КАРТИНКАМИ -->
+        <!-- МОДУЛЬ ТЕСТОВ -->
         <section id="test" class="section">
-            <div class="test-container">
-                <div class="test-header">
-                    <span>Вопрос <strong id="questionNum">1</strong>/<span id="totalQuestions">20</span></span>
-                    <span class="score">✓ <span id="correctCount">0</span></span>
-                </div>
-                
-                <!-- Картинка вопроса -->
-                <div class="question-image-container" id="questionImageContainer">
-                    <img id="questionImage" src="" alt="Клинический случай">
-                    <button class="zoom-btn" onclick="zoomImage()">🔍</button>
-                </div>
-                
-                <div class="question-text" id="questionText">
-                    Загрузка...
-                </div>
-                
-                <div class="answers" id="answersContainer"></div>
-                
-                <div class="explanation" id="explanation"></div>
-                
-                <div class="test-controls">
-                    <button onclick="checkTestAnswer()" class="btn btn-primary" id="checkBtn">Проверить</button>
-                    <button onclick="nextTestQuestion()" class="btn btn-secondary" id="nextBtn">Далее →</button>
-                </div>
-            </div>
+            <!-- Content rendered dynamically by ModuleSelector / renderTestQuestion -->
         </section>
 
         <!-- МОДУЛЬ ФЛЭШ-КАРТ С ИЛЛЮСТРАЦИЯМИ -->
@@ -377,6 +353,8 @@
     <script src="js/progress-matrix.js"></script>
     <script src="js/progress-matrix-ui.js"></script>
     <script src="js/test-selector.js"></script>
+    <script src="js/course-data.js"></script>
+    <script src="js/module-selector.js"></script>
     <script src="js/app.js"></script>
     <!-- Авторизация и синхронизация -->
     <script src="js/auth-module.js"></script>

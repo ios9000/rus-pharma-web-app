@@ -138,4 +138,14 @@ function initModules() {
     initCardsModule();
     initCasesModule();
     updateProgress();
+
+    // Load course data from Supabase (async, non-blocking)
+    if (typeof CourseData !== 'undefined') {
+        var cadet = (typeof AuthModule !== 'undefined' && AuthModule.getCurrentCadet)
+            ? AuthModule.getCurrentCadet() : null;
+        var groupCode = cadet ? cadet.groupCode : null;
+        CourseData.loadCourseData(groupCode).catch(function(err) {
+            console.warn('[initModules] CourseData load error:', err);
+        });
+    }
 }
