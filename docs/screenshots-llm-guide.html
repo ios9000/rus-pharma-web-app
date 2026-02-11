@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мокапы — Руководство инструктора по LLM-генерации</title>
+    <style>
+        /* === Base from instructor.css === */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --clr-bg: #f4f6f8;
+            --clr-surface: #ffffff;
+            --clr-sidebar: #1e293b;
+            --clr-sidebar-hover: #334155;
+            --clr-primary: #2563eb;
+            --clr-primary-hover: #1d4ed8;
+            --clr-text: #1e293b;
+            --clr-text-secondary: #64748b;
+            --clr-border: #e2e8f0;
+            --clr-error: #dc2626;
+            --clr-error-bg: #fef2f2;
+            --clr-success: #16a34a;
+            --radius: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: 0.2s ease;
+        }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #e9ecf1;
+            color: var(--clr-text);
+            line-height: 1.5;
+            padding: 32px;
+        }
+
+        /* === Page layout === */
+        .page-title {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--clr-text);
+        }
+        .page-subtitle {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 15px;
+            color: var(--clr-text-secondary);
+        }
+        .mockup-section {
+            max-width: 900px;
+            margin: 0 auto 48px;
+        }
+        .mockup-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--clr-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+        .mockup-caption {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--clr-text);
+            margin-bottom: 16px;
+        }
+        .mockup-frame {
+            background: var(--clr-bg);
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+        .mockup-note {
+            font-size: 13px;
+            color: var(--clr-text-secondary);
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        /* === Sidebar mockup === */
+        .sidebar-mockup {
+            width: 240px;
+            background: var(--clr-sidebar);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .sidebar-header { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .sidebar-header h2 { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+        .sidebar-header span { font-size: 12px; color: #94a3b8; }
+        .nav-section-label { padding: 16px 20px 8px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #cbd5e1;
+            font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: none;
+            width: 100%; text-align: left;
+        }
+        .nav-item:hover { background: var(--clr-sidebar-hover); color: #fff; }
+        .nav-item.active { background: var(--clr-sidebar-hover); color: #fff; border-right: 3px solid var(--clr-primary); }
+        .nav-item-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+        .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: auto; }
+        .user-info { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--clr-primary); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: #fff; flex-shrink: 0; }
+        .user-email { font-size: 12px; color: #94a3b8; }
+        .btn-logout { width: 100%; padding: 9px 14px; border: 1px solid rgba(255,255,255,0.12); border-radius: var(--radius); background: transparent; color: #94a3b8; font-size: 13px; cursor: pointer; text-align: center; }
+
+        /* === Dashboard combined layout === */
+        .dashboard-mockup { display: flex; min-height: 500px; }
+        .main-content-mockup { flex: 1; padding: 32px; }
+        .page-header { margin-bottom: 28px; }
+        .page-header h1 { font-size: 24px; font-weight: 700; color: var(--clr-text); margin-bottom: 4px; }
+        .page-header p { font-size: 14px; color: var(--clr-text-secondary); }
+
+        /* === Gen styles === */
+        .gen-card { background: var(--clr-surface); border: 1px solid var(--clr-border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
+        .gen-card-title { font-size: 16px; font-weight: 700; color: var(--clr-text); margin-bottom: 20px; }
+        .gen-upload-zone { border: 2px dashed var(--clr-border); border-radius: var(--radius); padding: 32px 24px; text-align: center; cursor: pointer; transition: border-color var(--transition), background var(--transition); }
+        .gen-upload-zone:hover { border-color: var(--clr-primary); background: rgba(37,99,235,0.04); }
+        .gen-upload-icon { font-size: 36px; margin-bottom: 8px; opacity: 0.6; }
+        .gen-upload-text { font-size: 14px; font-weight: 500; color: var(--clr-text); margin-bottom: 4px; }
+        .gen-upload-hint { font-size: 12px; color: var(--clr-text-secondary); }
+        .gen-file-info { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 14px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: var(--radius); }
+        .gen-file-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--clr-text); }
+        .gen-file-clear { width: 28px; height: 28px; border: none; background: none; font-size: 14px; color: var(--clr-text-secondary); cursor: pointer; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .gen-divider { display: flex; align-items: center; margin: 20px 0; gap: 12px; }
+        .gen-divider::before, .gen-divider::after { content: ''; flex: 1; height: 1px; background: var(--clr-border); }
+        .gen-divider span { font-size: 13px; color: var(--clr-text-secondary); }
+        .gen-textarea { width: 100%; padding: 12px 14px; border: 1.5px solid var(--clr-border); border-radius: var(--radius); font-size: 14px; font-family: inherit; color: var(--clr-text); background: var(--clr-surface); resize: vertical; min-height: 80px; }
+        .gen-textarea:disabled { background: #f8fafc; color: var(--clr-text-secondary); }
+        .gen-text-stats { margin-top: 10px; font-size: 13px; font-weight: 500; padding: 8px 12px; border-radius: var(--radius); }
+        .gen-text-ok { color: var(--clr-success); background: #f0fdf4; }
+        .gen-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .gen-type-option { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1.5px solid var(--clr-border); border-radius: var(--radius); cursor: pointer; font-size: 14px; color: var(--clr-text); }
+        .gen-type-option input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--clr-primary); cursor: pointer; }
+        .gen-type-option input[type="checkbox"]:checked + span { font-weight: 600; }
+        .gen-hint { display: block; font-size: 12px; color: var(--clr-text-secondary); margin-top: 4px; font-weight: 400; }
+        .gen-submit-btn { width: 100%; padding: 14px 24px; font-size: 15px; margin-top: 8px; }
+        .gen-submit-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+        .gen-progress { display: flex; flex-direction: column; align-items: center; padding: 32px 24px; text-align: center; }
+        .gen-progress-spinner { width: 36px; height: 36px; border: 3px solid var(--clr-border); border-top-color: var(--clr-primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .gen-progress-title { font-size: 16px; font-weight: 700; color: var(--clr-text); margin-bottom: 8px; }
+        .gen-progress-hint { font-size: 13px; color: var(--clr-text-secondary); }
+        .gen-results-stats { display: flex; flex-wrap: wrap; gap: 16px; padding: 12px 16px; background: var(--clr-bg); border-radius: var(--radius); margin-bottom: 16px; }
+        .gen-stats-item { font-size: 13px; color: var(--clr-text-secondary); white-space: nowrap; }
+        .gen-stats-item strong { color: var(--clr-text); }
+        .gen-error { text-align: center; padding: 32px 24px; }
+        .gen-error-icon { font-size: 40px; margin-bottom: 12px; }
+        .gen-error-message { font-size: 15px; color: var(--clr-text); line-height: 1.6; margin-bottom: 20px; }
+
+        /* Intro steps */
+        .gen-intro { margin-bottom: 20px; }
+        .gen-intro-steps { display: flex; gap: 16px; flex-wrap: wrap; }
+        .gen-intro-step { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 200px; padding: 14px 16px; background: var(--clr-surface); border: 1px solid var(--clr-border); border-radius: var(--radius); font-size: 14px; color: var(--clr-text); }
+        .gen-intro-step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--clr-primary); color: #fff; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+        /* === Review card styles === */
+        .rc-bulk-actions { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding: 12px 16px; background: var(--clr-bg); border-radius: var(--radius); flex-wrap: wrap; }
+        .rc-bulk-stats { margin-left: auto; font-size: 13px; color: var(--clr-text-secondary); }
+        .rc-group { margin-bottom: 24px; }
+        .rc-group-title { font-size: 15px; font-weight: 700; color: var(--clr-text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .rc-group-icon { font-size: 18px; }
+        .rc-card { background: var(--clr-surface); border: 1px solid var(--clr-border); border-radius: var(--radius); margin-bottom: 12px; }
+        .rc-status-draft { border-left: 3px solid #f59e0b; }
+        .rc-status-approved { border-left: 3px solid var(--clr-success); opacity: 0.75; }
+        .rc-status-rejected { border-left: 3px solid var(--clr-error); opacity: 0.5; }
+        .rc-card-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--clr-border); }
+        .rc-card-type { font-size: 13px; font-weight: 600; }
+        .rc-card-status { font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 10px; background: #fffbeb; color: #92400e; }
+        .rc-status-approved .rc-card-status { background: #dcfce7; color: #166534; }
+        .rc-status-rejected .rc-card-status { background: var(--clr-error-bg); color: var(--clr-error); }
+        .rc-card-body { padding: 16px; }
+        .rc-card-actions { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--clr-border); }
+        .rc-question-text { font-size: 14px; font-weight: 500; color: var(--clr-text); margin-bottom: 12px; line-height: 1.6; }
+        .rc-options { margin-bottom: 12px; }
+        .rc-option { display: flex; align-items: flex-start; gap: 8px; padding: 8px 12px; border-radius: var(--radius); font-size: 14px; color: var(--clr-text); margin-bottom: 4px; background: var(--clr-bg); }
+        .rc-option-correct { background: #f0fdf4; border: 1px solid #bbf7d0; }
+        .rc-option-marker { flex-shrink: 0; font-size: 13px; margin-top: 1px; }
+        .rc-option-correct .rc-option-marker { color: var(--clr-success); font-weight: 700; }
+        .rc-explanation { font-size: 13px; color: var(--clr-text-secondary); background: #f8fafc; padding: 10px 14px; border-radius: var(--radius); margin-bottom: 8px; line-height: 1.5; }
+        .rc-meta-row { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; color: var(--clr-text-secondary); }
+        .rc-meta-row span { background: var(--clr-bg); padding: 2px 8px; border-radius: 4px; }
+        .rc-drug-title { font-size: 16px; font-weight: 600; color: var(--clr-text); margin-bottom: 12px; }
+        .rc-drug-lat { font-weight: 400; color: var(--clr-text-secondary); font-size: 14px; }
+        .rc-field { font-size: 14px; color: var(--clr-text); margin-bottom: 6px; line-height: 1.5; }
+        .rc-field-label { font-weight: 600; color: var(--clr-text-secondary); font-size: 13px; }
+        .rc-field-notes { font-size: 13px; color: var(--clr-text); background: #fefce8; padding: 10px 14px; border-radius: var(--radius); margin-top: 8px; line-height: 1.5; border: 1px solid #fde68a; }
+        .rc-scenario-situation { font-size: 14px; font-weight: 500; color: var(--clr-text); margin-bottom: 12px; line-height: 1.6; }
+        .rc-scenario-question { font-size: 14px; color: var(--clr-text); margin-bottom: 12px; }
+        .rc-editing { border-color: var(--clr-primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+        .rc-edit-option { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .rc-edit-input { width: 100%; padding: 8px 12px; border: 1.5px solid var(--clr-border); border-radius: var(--radius); font-size: 14px; font-family: inherit; color: var(--clr-text); background: var(--clr-surface); }
+        textarea.rc-edit-input { resize: vertical; min-height: 60px; }
+
+        /* === Common buttons === */
+        .btn-primary { padding: 10px 20px; border: none; border-radius: var(--radius); background: var(--clr-primary); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .btn-primary:hover { background: var(--clr-primary-hover); }
+        .btn-sm { padding: 6px 12px; border: 1px solid var(--clr-border); border-radius: var(--radius); background: var(--clr-surface); color: var(--clr-text); font-size: 13px; cursor: pointer; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--clr-text); margin-bottom: 6px; }
+        .form-row { display: flex; gap: 16px; }
+        .form-row .form-group { flex: 1; }
+        .filter-select { padding: 10px 14px; border: 1.5px solid var(--clr-border); border-radius: var(--radius); font-size: 14px; color: var(--clr-text); background: var(--clr-surface); cursor: pointer; width: 100%; }
+        .form-group input[type="number"] { width: 100%; padding: 10px 14px; border: 1.5px solid var(--clr-border); border-radius: var(--radius); font-size: 14px; font-family: inherit; color: var(--clr-text); background: var(--clr-surface); }
+
+        /* === Annotation arrow === */
+        .annotation {
+            position: absolute;
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #92400e;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        .mockup-frame-relative {
+            position: relative;
+        }
+
+        /* === Divider between mockups === */
+        .mockup-divider {
+            max-width: 900px;
+            margin: 0 auto 48px;
+            border: none;
+            border-top: 2px dashed var(--clr-border);
+        }
+
+        /* Flash type badge */
+        .rc-flash-type { display: inline-block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #ca8a04; background: #fefce8; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; }
+
+        /* Text warning */
+        .gen-text-warning { margin-top: 10px; font-size: 13px; font-weight: 500; padding: 10px 14px; border-radius: var(--radius); color: #92400e; background: #fffbeb; border: 1px solid #fde68a; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+<h1 class="page-title">Мокапы интерфейса</h1>
+<p class="page-subtitle">Визуальные иллюстрации к «Руководству инструктора по LLM-генерации контента»</p>
+
+<!-- ============================================================ -->
+<!-- MOCKUP 1: Sidebar navigation -->
+<!-- ============================================================ -->
+<div class="mockup-section">
+    <div class="mockup-label">Мокап 1</div>
+    <div class="mockup-caption">Боковая панель навигации — раздел «Генерация контента»</div>
+    <div class="mockup-frame">
+        <div class="dashboard-mockup">
+            <div class="sidebar-mockup">
+                <div class="sidebar-header">
+                    <h2>Кабинет инструктора</h2>
+                    <span>Управление контентом</span>
+                </div>
+                <div style="flex: 1; padding: 12px 0;">
+                    <div class="nav-section-label">Навигация</div>
+                    <button class="nav-item">
+                        <span class="nav-item-icon">&#9632;</span> Обзор
+                    </button>
+                    <button class="nav-item">
+                        <span class="nav-item-icon">&#9997;</span> Вопросы
+                    </button>
+                    <button class="nav-item">
+                        <span class="nav-item-icon">&#9883;</span> Препараты
+                    </button>
+                    <button class="nav-item active">
+                        <span class="nav-item-icon">&#129302;</span> Генерация контента
+                    </button>
+                    <div class="nav-section-label">Управление</div>
+                    <button class="nav-item">
+                        <span class="nav-item-icon">&#9733;</span> Группы
+                    </button>
+                    <button class="nav-item">
+                        <span class="nav-item-icon">&#9823;</span> Курсанты
+                    </button>
+                    <button class="nav-item">
+                        <span class="nav-item-icon">&#9670;</span> Инструкторы
+                    </button>
+                </div>
+                <div class="sidebar-footer">
+                    <div class="user-info">
+                        <div class="user-avatar">И</div>
+                        <div class="user-email">ivanov@example.com</div>
+                    </div>
+                    <button class="btn-logout">Выйти</button>
+                </div>
+            </div>
+            <div class="main-content-mockup">
+                <div class="page-header">
+                    <h1>&#129302; Генерация контента</h1>
+                    <p>Загрузите материалы лекции — Claude AI сгенерирует учебный контент.</p>
+                </div>
+                <div class="gen-intro">
+                    <div class="gen-intro-steps">
+                        <div class="gen-intro-step">
+                            <span class="gen-intro-step-num">1</span>
+                            <span>Загрузите PDF / DOCX или вставьте текст</span>
+                        </div>
+                        <div class="gen-intro-step">
+                            <span class="gen-intro-step-num">2</span>
+                            <span>Выберите типы контента и настройки</span>
+                        </div>
+                        <div class="gen-intro-step">
+                            <span class="gen-intro-step-num">3</span>
+                            <span>Ревьюите, редактируйте и утверждайте</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Пункт «Генерация контента» в боковом меню выделен как активный (светлый фон, синяя полоса справа).</p>
+</div>
+
+<hr class="mockup-divider">
+
+<!-- ============================================================ -->
+<!-- MOCKUP 2: Upload zone (empty) -->
+<!-- ============================================================ -->
+<div class="mockup-section">
+    <div class="mockup-label">Мокап 2</div>
+    <div class="mockup-caption">Зона загрузки файлов — исходное состояние</div>
+    <div class="mockup-frame" style="padding: 32px;">
+        <div class="gen-card">
+            <h3 class="gen-card-title">Загрузка материалов</h3>
+
+            <div class="gen-upload-zone">
+                <div class="gen-upload-icon">&#128196;</div>
+                <div class="gen-upload-text">Перетащите файл сюда или нажмите для выбора</div>
+                <div class="gen-upload-hint">PDF, DOCX, TXT (до 10 МБ)</div>
+            </div>
+
+            <div class="gen-divider"><span>или</span></div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Вставьте текст лекции</label>
+                <textarea class="gen-textarea" rows="4" placeholder="Скопируйте и вставьте текст лекции сюда..." disabled style="background:#fff;color:var(--clr-text);"></textarea>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Область с пунктирной рамкой принимает файл по клику или перетаскиванию (drag-and-drop). Альтернативно можно вставить текст вручную в поле ниже.</p>
+</div>
+
+<hr class="mockup-divider">
+
+<!-- ============================================================ -->
+<!-- MOCKUP 3: Upload zone with file loaded -->
+<!-- ============================================================ -->
+<div class="mockup-section">
+    <div class="mockup-label">Мокап 3</div>
+    <div class="mockup-caption">Файл загружен — текст извлечён</div>
+    <div class="mockup-frame" style="padding: 32px;">
+        <div class="gen-card">
+            <h3 class="gen-card-title">Загрузка материалов</h3>
+
+            <div class="gen-upload-zone" style="border-color: var(--clr-primary); background: rgba(37,99,235,0.04); opacity: 0.6; pointer-events: none;">
+                <div class="gen-upload-icon">&#128196;</div>
+                <div class="gen-upload-text">Перетащите файл сюда или нажмите для выбора</div>
+                <div class="gen-upload-hint">PDF, DOCX, TXT (до 10 МБ)</div>
+            </div>
+
+            <div class="gen-file-info">
+                <span class="gen-file-name">Лекция_08_Обезболивание.pdf (2.4 МБ, 12 стр.)</span>
+                <button class="gen-file-clear" title="Очистить">&#10005;</button>
+            </div>
+
+            <div class="gen-divider"><span>или</span></div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Вставьте текст лекции</label>
+                <textarea class="gen-textarea" rows="4" disabled style="font-size:13px;">Обезболивание в тактической медицине. Современные подходы к анальгезии в боевых условиях предполагают использование ступенчатой схемы. Первая ступень — ненаркотические анальгетики (кеторолак, парацетамол). Вторая ступень — опиоидные анальгетики (морфин, промедол). Третья ступень — регионарная анестезия (фасциальные блоки). Ключевой принцип: обезболивание начинается на поле боя, не дожидаясь эвакуации...</textarea>
+            </div>
+
+            <div class="gen-text-stats gen-text-ok">
+                Извлечено: 34 521 символов (~12 стр.) &#10003;
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">После загрузки показывается имя файла, размер и число страниц. Извлечённый текст заполняет поле ввода (оно становится неактивным). Зелёная статистика подтверждает, что текста достаточно.</p>
+</div>
+
+<hr class="mockup-divider">
+
+<!-- ============================================================ -->
+<!-- MOCKUP 4: Settings -->
+<!-- ============================================================ -->
+<div class="mockup-section">
+    <div class="mockup-label">Мокап 4</div>
+    <div class="mockup-caption">Настройки генерации — типы контента и параметры</div>
+    <div class="mockup-frame" style="padding: 32px;">
+        <div class="gen-card">
+            <h3 class="gen-card-title">Настройки генерации</h3>
+
+            <div class="form-group">
+                <label>Тип контента</label>
+                <div class="gen-type-grid">
+                    <label class="gen-type-option">
+                        <input type="checkbox" checked> <span>Тестовые вопросы</span>
+                    </label>
+                    <label class="gen-type-option">
+                        <input type="checkbox" checked> <span>Карточки препаратов</span>
+                    </label>
+                    <label class="gen-type-option">
+                        <input type="checkbox" checked> <span>Flash-карточки</span>
+                    </label>
+                    <label class="gen-type-option">
+                        <input type="checkbox" checked> <span>Сценарии</span>
+                    </label>
+                </div>
+                <span class="gen-hint">Выберите хотя бы один тип контента</span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Компетенция</label>
+                    <select class="filter-select">
+                        <option>&#9889; Шок и неотложные состояния → Обезболивание и седация</option>
+                    </select>
+                    <span class="gen-hint">Вопросы и сценарии будут привязаны к этой компетенции</span>
+                </div>
+                <div class="form-group">
+                    <label>Блок</label>
+                    <select class="filter-select" disabled>
+                        <option>&#9889; Шок и неотложные состояния</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Сложность</label>
+                    <select class="filter-select">
+                        <option>2 — Средний</option>
+                    </select>
+                    <span class="gen-hint">1 — факты, 2 — понимание, 3 — анализ и применение</span>
+                </div>
+                <div class="form-group">
+                    <label>Количество</label>
+                    <input type="number" value="5" min="1" max="20">
+                    <span class="gen-hint">Элементов каждого выбранного типа (1–20)</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Дополнительные пожелания (опционально)</label>
+                <textarea class="gen-textarea" rows="2" style="min-height:60px;" placeholder="Например: «Фокус на дозировках», «Сложные вопросы про полевые условия»...">Фокус на дозировках и противопоказаниях НПВС</textarea>
+                <span class="gen-hint">Claude учтёт ваши пожелания при генерации</span>
+            </div>
+
+            <button class="btn-primary gen-submit-btn">Сгенерировать контент</button>
+        </div>
+    </div>
+    <p class="mockup-note">Все четыре типа контента выбраны. Компетенция задана, блок определился автоматически. Кнопка «Сгенерировать контент» активна (синяя), т.к. текст загружен и типы выбраны.</p>
+</div>
+
+<hr class="mockup-divider">
+
+<!-- ============================================================ -->
+<!-- MOCKUP 5: Progress spinner -->
+<!-- ============================================================ -->
+<div class="mockup-section">
+    <div class="mockup-label">Мокап 5</div>
+    <div class="mockup-caption">Процесс генерации — индикатор ожидания</div>
+    <div class="mockup-frame" style="padding: 32px;">
+        <div class="gen-card gen-progress">
+            <div class="gen-progress-spinner"></div>
+            <h3 class="gen-progress-title">Claude AI генерирует контент...</h3>
+            <div class="gen-progress-hint">Это может занять 15–60 секунд в зависимости от объёма текста.</div>
+            <div class="gen-progress-hint">Не закрывайте страницу.</div>
+        </div>
+    </div>
+    <p class="mockup-note">Вращающийся спиннер и предупреждение не закрывать страницу. Кнопка генерации заблокирована на время обработки.</p>
+</div>
+
+<hr class="mockup-divider">
+
+<!-- ============================================================ -->
+<!-- MOCKUP 6: Generation stats -->
+<!-- ============================================================ -->
+<div class="mockup-section">
+    <div class="mockup-label">Мокап 6</div>
+    <div class="mockup-caption">Статистика генерации</div>
+    <div class="mockup-frame" style="padding: 32px;">
+        <div class="gen-card">
+            <h3 class="gen-card-title">Результаты генерации</h3>
+            <div class="gen-results-stats">
+                <span class="gen-stats-item">&#9202; <strong>32.4 сек</strong></span>
+                <span class="gen-stats-item">&#128202; Токены: <strong>28 450</strong> вход / <strong>3 120</strong> выход</span>
+                <span class="gen-stats-item">&#128176; <strong>~$0.13</strong></span>
+                <span class="gen-stats-item">&#128221; <strong>17</strong> элементов</span>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Время генерации, количество токенов, примерная стоимость и число сгенерированных элементов.</p>
+</div>
+
+<hr class="mockup-divider">
+
+<!-- ============================================================ -->
+<!-- MOCKUP 7: Review card — Question (draft) -->
+<!-- ============================================================ -->
+<div class="mockup-section">
+    <div class="mockup-label">Мокап 7</div>
+    <div class="mockup-caption">Карточка тестового вопроса — черновик (draft)</div>
+    <div class="mockup-frame" style="padding: 32px;">
+        <div class="rc-bulk-actions">
+            <button class="btn-primary btn-sm">Утвердить все</button>
+            <button class="btn-sm">Отклонить все</button>
+            <span class="rc-bulk-stats">Всего: 17 | Черновики: 17 | Утверждено: 0 | Отклонено: 0</span>
+        </div>
+
+        <div class="rc-group">
+            <h4 class="rc-group-title">
+                <span class="rc-group-icon">&#9997;</span>
+                Тестовый вопрос (5)
+            </h4>
+
+            <div class="rc-card rc-status-draft">
+                <div class="rc-card-header">
+                    <span class="rc-card-type" style="color:#2563eb;">&#9997; Тестовый вопрос</span>
+                    <span class="rc-card-status">draft</span>
+                </div>
+                <div class="rc-card-body">
+                    <div class="rc-question-text">Какой препарат является анальгетиком первой линии при тактической эвакуации раненого с переломом бедренной кости в условиях ограниченного времени?</div>
+                    <div class="rc-options">
+                        <div class="rc-option">
+                            <span class="rc-option-marker">&#9675;</span>
+                            Морфин 10 мг в/м
+                        </div>
+                        <div class="rc-option rc-option-correct">
+                            <span class="rc-option-marker">&#10003;</span>
+                            Кеторолак 30 мг в/м
+                        </div>
+                        <div class="rc-option">
+                            <span class="rc-option-marker">&#9675;</span>
+                            Диклофенак 75 мг в/м
+                        </div>
+                        <div class="rc-option">
+                            <span class="rc-option-marker">&#9675;</span>
+                            Парацетамол 1000 мг перорально
+                        </div>
+                    </div>
+                    <div class="rc-explanation"><strong>Пояснение:</strong> Кеторолак (Кеторол) — ненаркотический анальгетик, рекомендованный TCCC как препарат первой линии. Начинает действовать через 10–15 минут при в/м введении. Не угнетает дыхательный центр, что критически важно при транспортировке.</div>
+                    <div class="rc-meta-row">
+                        <span>Сложность: 2</span>
+                        <span>Категория: Обезболивание</span>
+                    </div>
+                </div>
+                <div class="rc-card-actions">
+                    <button class="btn-sm">&#9997; Редактировать</button>
+                    <button class="btn-primary btn-sm">&#10003; Утвердить</button>
+                    <button class="btn-sm">&#10007; Отклонить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Жёлтая левая полоса = черновик. Правильный ответ подсвечен зелёным с галочкой. Три кнопки действий: «Редактировать», «Утвердить», «Отклонить». Наверху — кнопки массовых действий и счётчик.</p>
+</div>
+
+<hr class="mockup-divider">
+
+<!-- ============================================================ -->
+<!-- MOCKUP 8: Review card — Drug -->
+<!-- ============================================================ -->
+<div class="mockup-section">
+    <div class="mockup-label">Мокап 8</div>
+    <div class="mockup-caption">Карточка препарата — черновик</div>
+    <div class="mockup-frame" style="padding: 32px;">
+        <div class="rc-card rc-status-draft">
+            <div class="rc-card-header">
+                <span class="rc-card-type" style="color:#16a34a;">&#9883; Препарат</span>
+                <span class="rc-card-status">draft</span>
+            </div>
+            <div class="rc-card-body">
+                <div class="rc-drug-title">Кеторолак <span class="rc-drug-lat">(Ketorolac)</span></div>
+                <div class="rc-field"><span class="rc-field-label">Группа:</span> НПВС, производные уксусной кислоты</div>
+                <div class="rc-field"><span class="rc-field-label">Форма:</span> Раствор для инъекций 30 мг/мл — 1 мл</div>
+                <div class="rc-field"><span class="rc-field-label">Дозировка:</span> 30 мг в/м однократно, затем по 15–30 мг каждые 6 ч. Макс. суточная доза: 90 мг. Курс не более 5 дней.</div>
+                <div class="rc-field"><span class="rc-field-label">Показания:</span> Болевой синдром средней и сильной интенсивности при травмах, переломах, ожогах, послеоперационная боль</div>
+                <div class="rc-field"><span class="rc-field-label">Противопоказания:</span> Язвенная болезнь в стадии обострения, бронхиальная астма, нарушения свёртываемости крови, возраст до 16 лет</div>
+                <div class="rc-field"><span class="rc-field-label">Побочные эффекты:</span> Диспепсия, головокружение, повышение АД, риск ЖКТ-кровотечений при длительном применении</div>
+                <div class="rc-field-notes"><strong>Полевые особенности:</strong> Хранить при температуре не выше 25°C, защищать от замерзания. В/м введение в дельтовидную мышцу или наружную поверхность бедра. Не смешивать в одном шприце с морфином. Препарат первой линии по протоколу TCCC.</div>
+            </div>
+            <div class="rc-card-actions">
+                <button class="btn-sm">&#9997; Редактировать</button>
+                <button class="btn-primary btn-sm">&#10003; Утвердить</button>
+                <button class="btn-sm">&#10007; Отклонить</button>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Карточка препарата содержит все поля: название (рус. и лат.), группу, форму, дозировку, показания, противопоказания, побочные эффекты и полевые особенности (жёлтый блок).</p>
+</div>
+
+<hr class="mockup-divider">
+
+<!-- ============================================================ -->
+<!-- MOCKUP 9: Review card — Scenario -->
+<!-- ============================================================ -->
+<div class="mockup-section">
+    <div class="mockup-label">Мокап 9</div>
+    <div class="mockup-caption">Карточка клинического сценария — черновик</div>
+    <div class="mockup-frame" style="padding: 32px;">
+        <div class="rc-card rc-status-draft">
+            <div class="rc-card-header">
+                <span class="rc-card-type" style="color:#dc2626;">&#127919; Сценарий</span>
+                <span class="rc-card-status">draft</span>
+            </div>
+            <div class="rc-card-body">
+                <div class="rc-scenario-situation">Боевое столкновение в лесополосе. Боец получил осколочное ранение правого бедра с открытым переломом. Кровотечение из раны обильное, но не пульсирующее. Пострадавший в сознании, кричит от боли. АД 100/70, ЧСС 110, SpO2 96%. До эвакуации — не менее 40 минут. В аптечке: жгут CAT, кеторолак 30 мг, морфин 10 мг, бинты, транексамовая кислота.</div>
+                <div class="rc-scenario-question"><strong>Вопрос:</strong> Какова правильная последовательность действий?</div>
+                <div class="rc-options">
+                    <div class="rc-option">
+                        <span class="rc-option-marker">&#9675;</span>
+                        Наложить жгут, ввести морфин 10 мг в/м, наложить давящую повязку
+                    </div>
+                    <div class="rc-option rc-option-correct">
+                        <span class="rc-option-marker">&#10003;</span>
+                        Наложить давящую повязку, ввести транексамовую кислоту, ввести кеторолак 30 мг в/м, иммобилизировать конечность
+                    </div>
+                    <div class="rc-option">
+                        <span class="rc-option-marker">&#9675;</span>
+                        Ввести морфин 10 мг в/м, наложить жгут, вызвать эвакуацию
+                    </div>
+                    <div class="rc-option">
+                        <span class="rc-option-marker">&#9675;</span>
+                        Иммобилизировать конечность, ввести кеторолак, ожидать эвакуацию без дополнительных действий
+                    </div>
+                </div>
+                <div class="rc-explanation"><strong>Обоснование:</strong> Кровотечение венозное (не пульсирующее) — жгут не нужен, достаточно давящей повязки. Транексамовая кислота снижает кровопотерю. Кеторолак — анальгетик первой линии (не угнетает дыхание). Морфин при ЧСС 110 и АД 100/70 может вызвать гипотензию. Иммобилизация снижает болевой синдром и предотвращает вторичное повреждение.</div>
+            </div>
+            <div class="rc-card-actions">
+                <button class="btn-sm">&#9997; Редактировать</button>
+                <button class="btn-primary btn-sm">&#10003; Утвердить</button>
+                <button class="btn-sm">&#10007; Отклонить</button>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Сценарий описывает боевую ситуацию с витальными показателями. Варианты действий с правильным ответом, обоснование привязано к протоколам тактической медицины.</p>
+</div>
+
+<hr class="mockup-divider">
+
+<!-- ============================================================ -->
+<!-- MOCKUP 10: Edit mode -->
+<!-- ============================================================ -->
+<div class="mockup-section">
+    <div class="mockup-label">Мокап 10</div>
+    <div class="mockup-caption">Режим редактирования карточки вопроса</div>
+    <div class="mockup-frame" style="padding: 32px;">
+        <div class="rc-card rc-status-draft rc-editing">
+            <div class="rc-card-header">
+                <span class="rc-card-type" style="color:#2563eb;">&#9997; Тестовый вопрос</span>
+                <span class="rc-card-status">draft</span>
+            </div>
+            <div class="rc-card-body">
+                <div class="form-group">
+                    <label>Текст вопроса</label>
+                    <textarea class="rc-edit-input" rows="3">Какой препарат является анальгетиком первой линии при тактической эвакуации раненого с переломом бедренной кости?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Варианты ответов</label>
+                    <div class="rc-edit-option">
+                        <label><input type="checkbox"></label>
+                        <input type="text" class="rc-edit-input" value="Морфин 10 мг в/м">
+                    </div>
+                    <div class="rc-edit-option">
+                        <label><input type="checkbox" checked></label>
+                        <input type="text" class="rc-edit-input" value="Кеторолак 30 мг в/м">
+                    </div>
+                    <div class="rc-edit-option">
+                        <label><input type="checkbox"></label>
+                        <input type="text" class="rc-edit-input" value="Диклофенак 75 мг в/м">
+                    </div>
+                    <div class="rc-edit-option">
+                        <label><input type="checkbox"></label>
+                        <input type="text" class="rc-edit-input" value="Парацетамол 1000 мг перорально">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Пояснение</label>
+                    <textarea class="rc-edit-input" rows="2">Кеторолак (Кеторол) — ненаркотический анальгетик, рекомендованный TCCC как препарат первой линии.</textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Сложность</label>
+                        <select class="filter-select">
+                            <option>1</option>
+                            <option selected>2</option>
+                            <option>3</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Категория</label>
+                        <input type="text" class="rc-edit-input" value="Обезболивание">
+                    </div>
+                </div>
+            </div>
+            <div class="rc-card-actions">
+                <button class="btn-primary btn-sm">Сохранить</button>
+                <button class="btn-sm">Отмена</button>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">В режиме редактирования карточка подсвечивается синей рамкой. Все поля доступны для изменения: текст вопроса, варианты ответов (галочка = правильный), пояснение, сложность и категория. Кнопки «Сохранить» и «Отмена».</p>
+</div>
+
+<hr class="mockup-divider">
+
+<!-- ============================================================ -->
+<!-- MOCKUP 11: Approved and Rejected cards -->
+<!-- ============================================================ -->
+<div class="mockup-section">
+    <div class="mockup-label">Мокап 11</div>
+    <div class="mockup-caption">Утверждённая и отклонённая карточки</div>
+    <div class="mockup-frame" style="padding: 32px;">
+        <div class="rc-card rc-status-approved" style="margin-bottom: 16px;">
+            <div class="rc-card-header">
+                <span class="rc-card-type" style="color:#2563eb;">&#9997; Тестовый вопрос</span>
+                <span class="rc-card-status">approved</span>
+            </div>
+            <div class="rc-card-body">
+                <div class="rc-question-text">Какой препарат является анальгетиком первой линии при тактической эвакуации?</div>
+                <div class="rc-meta-row">
+                    <span>Сложность: 2</span>
+                    <span>Категория: Обезболивание</span>
+                </div>
+            </div>
+            <!-- No actions for approved cards -->
+        </div>
+
+        <div class="rc-card rc-status-rejected">
+            <div class="rc-card-header">
+                <span class="rc-card-type" style="color:#2563eb;">&#9997; Тестовый вопрос</span>
+                <span class="rc-card-status">rejected</span>
+            </div>
+            <div class="rc-card-body">
+                <div class="rc-question-text">Какое из перечисленных средств относится к группе НПВС?</div>
+                <div class="rc-meta-row">
+                    <span>Сложность: 1</span>
+                    <span>Категория: Фармакология</span>
+                </div>
+            </div>
+            <!-- No actions for rejected cards -->
+        </div>
+    </div>
+    <p class="mockup-note">Утверждённая карточка (зелёная полоса, бейдж «approved») — элемент перенесён в учебную базу, кнопки действий отсутствуют. Отклонённая карточка (красная полоса, бейдж «rejected», пониженная непрозрачность) — элемент не попадает в базу.</p>
+</div>
+
+<hr class="mockup-divider">
+
+<!-- ============================================================ -->
+<!-- MOCKUP 12: Error state -->
+<!-- ============================================================ -->
+<div class="mockup-section">
+    <div class="mockup-label">Мокап 12</div>
+    <div class="mockup-caption">Ошибка генерации с кнопкой повтора</div>
+    <div class="mockup-frame" style="padding: 32px;">
+        <div class="gen-card gen-error">
+            <div class="gen-error-icon">&#9888;</div>
+            <div class="gen-error-message">&#9202; Генерация заняла слишком много времени. Попробуйте с меньшим объёмом текста или меньшим количеством типов контента.</div>
+            <button class="btn-primary btn-sm">Попробовать снова</button>
+        </div>
+    </div>
+    <p class="mockup-note">При ошибке (таймаут, проблема сети, перегрузка и т.д.) отображается описание проблемы и кнопка «Попробовать снова».</p>
+</div>
+
+<hr class="mockup-divider">
+
+<!-- ============================================================ -->
+<!-- MOCKUP 13: Disabled submit button -->
+<!-- ============================================================ -->
+<div class="mockup-section">
+    <div class="mockup-label">Мокап 13</div>
+    <div class="mockup-caption">Кнопка генерации — неактивное состояние (текст не загружен)</div>
+    <div class="mockup-frame" style="padding: 32px;">
+        <button class="btn-primary gen-submit-btn" disabled style="max-width: 400px; margin: 0 auto; display: block;">Сгенерировать контент</button>
+        <p style="text-align: center; margin-top: 12px; font-size: 13px; color: var(--clr-text-secondary);">Кнопка станет активной после загрузки текста (мин. 100 символов) и выбора хотя бы одного типа контента</p>
+    </div>
+</div>
+
+<div style="max-width: 900px; margin: 48px auto 0; text-align: center; color: var(--clr-text-secondary); font-size: 13px;">
+    <p>Файл создан автоматически как приложение к руководству <code>docs/user-guide-llm-automation.md</code></p>
+    <p>Откройте этот файл в браузере для просмотра мокапов</p>
+</div>
+
+</body>
+</html>
