@@ -26,6 +26,14 @@
 - Таблицы Supabase: instructors, cadets, groups
 - Docs: docs/iterations/004.5_user-management/session-log.md
 
+### Итерация 005: LLM Automation (2026-02-11) ✅
+- Загрузка лекций (PDF/DOCX/TXT) → извлечение текста (pdf.js, mammoth.js)
+- Edge Function `generate-content` → Claude Sonnet 4 API → генерация 4 типов контента (вопросы, препараты, flash-карточки, сценарии)
+- Review Cards: карточки ревью с approve/reject/edit, bulk-действия, inline-редактирование
+- Approve flow: question → `questions`, drug → `drugs`, flashcard → `drugs` (с `item_type`), scenario → `questions` (с `category='scenario'`)
+- UX-полировка: error cards с retry, статистика токенов/стоимости, intro-шаги, field hints, предупреждение о длинном тексте
+- Таблицы Supabase: `generated_content`, `generation_log`; миграция `drugs.item_type`
+
 ## В работе
 
 _(пусто)_
@@ -35,11 +43,6 @@ _(пусто)_
 ### Итерация 004.6: Auth инструкторов из кабинета
 - Edge Function для создания Supabase Auth пользователей из интерфейса
 - Убрать необходимость ручной работы в Supabase Dashboard
-
-### Итерация 005: LLM Automation (март 2026)
-- Загрузка лекций (PDF/DOCX) → Claude API → генерация вопросов/карточек
-- Инструктор ревьюит и подтверждает
-- Edge Function для безопасного хранения API-ключа
 
 ### Итерация 006: Visual Scenario Graph Editor
 - Визуальный граф-редактор для RPG-сценариев
