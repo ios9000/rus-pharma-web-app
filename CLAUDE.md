@@ -52,11 +52,13 @@ rus-pharma-web-app/
 │   ├── README.md
 │   ├── CHANGELOG.md
 │   ├── roadmap.md             ← план итераций
+│   ├── project-architecture.md ← архитектура системы
 │   └── iterations/
 │       ├── 003_multiple-choice/
-│       ├── 004_instructor-dashboard-mvp/
+│       ├── 004_instructor-cabinet/
+│       ├── 004.5_user-management/
 │       ├── 005_llm-automation/
-│       └── 006_scenario-graph-editor/
+│       └── 006_structured-testing/
 │
 ├── css/                       ← стили, разделены по модулям
 ├── js/                        ← модули приложения (см. ниже)
@@ -73,7 +75,14 @@ rus-pharma-web-app/
 │       ├── image-upload.js        ← загрузка в Storage
 │       ├── instructors.js         ← реестр инструкторов
 │       ├── cadets.js              ← управление курсантами
-│       └── groups.js              ← управление группами
+│       ├── groups.js              ← управление группами
+│       ├── text-extractor.js      ← извлечение текста из PDF/DOCX/TXT
+│       ├── llm-generator.js       ← UI генерации контента через Claude API
+│       └── review-cards.js        ← ревью и одобрение сгенерированного контента
+├── supabase/
+│   └── functions/
+│       └── generate-content/
+│           └── index.ts           ← Edge Function: Claude API, парсинг, сохранение
 ├── index.html                 ← точка входа (студенческий интерфейс)
 ├── service-worker.js          ← кэширование для офлайн-режима
 └── ...
@@ -97,20 +106,36 @@ rus-pharma-web-app/
 
 ## Supabase (кабинет инструктора)
 
+**URL:** `otoxfxwwdbeblwpizlbi.supabase.co`
+
 **Таблицы:**
-- `competencies` — 26 компетенций в 6 блоках
-- `questions` — вопросы с вариантами ответов (JSONB options[])
-- `drugs` — препараты (name_ru, name_lat, drug_group, dosage, form, indications, contraindications, side_effects, field_notes)
+- `competencies` — 26 компетенций в 6 блоках (id, name, block, description)
+- `questions` — вопросы (id, question_text, options JSONB[], correct_answer, competency_id, competency_block, category, module, difficulty, image_url, item_type)
+- `drugs` — препараты + flash-карточки (id, name_ru, name_lat, drug_group, dosage, form, indications, contraindications, side_effects, field_notes, image_url, item_type: 'drug'|'device'|'instrument'|'equipment')
+- `instructors` — реестр инструкторов (id UUID, email, full_name, created_by, is_active)
+- `cadets` — курсанты (id TEXT, group_code, full_name, pin_code, is_active)
+- `groups` — учебные группы (code TEXT PK, name, instructor, max_cadets, is_active)
 - `sync_log` — лог синхронизации (автоматический через триггеры)
-- `instructors` — реестр инструкторов (email, full_name)
-- `cadets` — курсанты (id, group_code, full_name, pin_code)
-- `groups` — учебные группы (code, name, instructor, max_cadets)
+- `generated_content` — сгенерированный LLM-контент (id, generation_id, type, content JSONB, status: draft|approved|rejected, competency_id, instructor_id, approved_target_id). RLS: инструктор видит только свои
+- `generation_log` — лог запросов к Claude API (generation_id, source_text_length, types_requested, tokens_input, tokens_output, model, duration_ms, status, error_message). RLS: инструктор видит только свои
 
 **Auth:** Email provider, роль instructor в user_metadata
 
 **Storage:** Бакет content-images (public), путь: {user_id}/questions/ и {user_id}/drugs/
 
-**Синхронизация:** SupabaseSync.gs → маркер [SB] в колонке ID, setNumberFormat('@') для колонки E
+**Edge Function:** `generate-content` (Deno, TypeScript, 454 строки)
+- Claude Sonnet 4 (`claude-sonnet-4-20250514`), max_tokens 4096
+- 4 типа контента: question, drug, flashcard, scenario
+- JWT verification отключена в конфиге, проверка через `auth.getUser()` в коде
+- AbortController timeout 90 сек, обработка 429 rate limit
+- Сохраняет в `generated_content`, логирует в `generation_log`
+
+**Разделение данных:**
+- Google Sheets — оригинальные данные (81 вопрос, 6 препаратов)
+- Supabase — новые данные из кабинета инструктора + LLM-генерация
+- Маркер `[SB]` в ID отличает синхронизированные строки от оригинальных
+
+**Синхронизация:** SupabaseSync.gs (Google Apps Script) → Supabase REST API → Google Sheets, маркер [SB], setNumberFormat('@') для колонки E. Оригинальные строки без маркера никогда не удаляются
 
 ---
 
@@ -151,21 +176,23 @@ rus-pharma-web-app/
 
 ## Текущая итерация
 
-Завершена: **004.5 — User Management** (см. docs/iterations/004.5_user-management/)
-Следующая: **005 — LLM Automation** (см. docs/roadmap.md)
+Завершена: **005 — LLM Automation** (см. docs/iterations/005_llm-automation/)
+Следующая: **006 — Structured Testing** (см. docs/iterations/006_structured-testing/)
 
 ---
 
 ## Roadmap
 
-| # | Итерация | Статус | Срок |
-|---|---|---|---|
-| 000–002 | Стабилизация (подключение модулей, SW, контент) | ✅ Завершено | — |
-| 003 | Multiple Choice (checkbox) | ✅ Завершено | — |
-| 004 | Кабинет инструктора MVP (формы, Supabase, auth) | ✅ Завершено | — |
-| 004.5 | Управление пользователями (группы, курсанты, инструкторы) | ✅ Завершено | — |
-| 005 | LLM-автоматизация (парсинг лекций → контент) | 🔜 Следующая | 2 недели |
-| 006 | Визуальный граф-редактор сценариев | 📋 Планируется | после марта |
+| # | Итерация | Статус |
+|---|---|---|
+| 000–002 | Стабилизация (подключение модулей, SW, контент) | ✅ Завершено |
+| 003 | Multiple Choice (checkbox) | ✅ Завершено |
+| 004 | Кабинет инструктора MVP (формы, Supabase, auth) | ✅ Завершено |
+| 004.5 | Управление пользователями (группы, курсанты, инструкторы) | ✅ Завершено |
+| 005 | LLM Automation (парсинг лекций → контент через Claude API) | ✅ Завершено |
+| 006 | Structured Testing (структурированное тестирование) | 🔄 В работе |
+| 007 | Migration (полная миграция с Google Sheets на Supabase) | 📋 Планируется |
+| 008 | Offline Mode (Service Worker, offline-first) | 📋 Планируется |
 
 ---
 
