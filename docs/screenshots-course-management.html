@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мокапы — Руководство инструктора: Управление курсом</title>
+    <style>
+        /* === Base from instructor.css === */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --clr-bg: #f4f6f8;
+            --clr-surface: #ffffff;
+            --clr-sidebar: #1e293b;
+            --clr-sidebar-hover: #334155;
+            --clr-primary: #2563eb;
+            --clr-primary-hover: #1d4ed8;
+            --clr-text: #1e293b;
+            --clr-text-secondary: #64748b;
+            --clr-border: #e2e8f0;
+            --clr-error: #dc2626;
+            --clr-error-bg: #fef2f2;
+            --clr-success: #16a34a;
+            --radius: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: 0.2s ease;
+        }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #e9ecf1;
+            color: var(--clr-text);
+            line-height: 1.5;
+            padding: 32px;
+        }
+
+        /* === Page layout === */
+        .page-title {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--clr-text);
+        }
+        .page-subtitle {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 15px;
+            color: var(--clr-text-secondary);
+        }
+        .mockup-section {
+            max-width: 900px;
+            margin: 0 auto 48px;
+        }
+        .mockup-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--clr-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+        .mockup-caption {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--clr-text);
+            margin-bottom: 16px;
+        }
+        .mockup-frame {
+            background: var(--clr-bg);
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+        .mockup-note {
+            font-size: 13px;
+            color: var(--clr-text-secondary);
+            margin-top: 10px;
+            font-style: italic;
+        }
+        .mockup-inner {
+            padding: 24px;
+        }
+
+        /* === Sidebar (mini version for mockup) === */
+        .sidebar-mini {
+            background: var(--clr-sidebar);
+            padding: 16px 0;
+            width: 220px;
+            border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+            display: inline-block;
+            vertical-align: top;
+        }
+        .sidebar-mini .nav-section-label {
+            padding: 12px 20px 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #475569;
+        }
+        .sidebar-mini .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            color: #cbd5e1;
+            font-size: 13px;
+            font-weight: 500;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+        .sidebar-mini .nav-item.active {
+            background: var(--clr-sidebar-hover);
+            color: #fff;
+            border-right: 3px solid var(--clr-primary);
+        }
+        .sidebar-mini .nav-item-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* === Instructor real classes === */
+        .page-header { margin-bottom: 24px; }
+        .page-header h1 { font-size: 24px; font-weight: 700; color: var(--clr-text); margin-bottom: 4px; }
+        .page-header p { font-size: 14px; color: var(--clr-text-secondary); }
+
+        .cm-panel {
+            background: var(--clr-surface);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        .cm-panel h2 { font-size: 18px; color: var(--clr-text); }
+
+        .cm-block { margin-bottom: 20px; }
+        .cm-block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .cm-block-header h3 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--clr-text-secondary);
+        }
+
+        .cm-modules-table td, .cm-modules-table th { padding: 8px 12px; font-size: 13px; }
+        .cm-cadets-status th, .cm-cadets-status td { padding: 6px 10px; font-size: 13px; white-space: nowrap; }
+
+        .cm-cadet-link {
+            color: var(--clr-primary);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .cm-review-card {
+            background: var(--clr-bg);
+            border: 1.5px solid var(--clr-border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .cm-review-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: var(--clr-text-secondary);
+        }
+        .cm-review-question {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--clr-text);
+            line-height: 1.5;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--clr-border);
+        }
+        .cm-review-field { margin-bottom: 12px; }
+        .cm-review-field-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--clr-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 4px;
+        }
+        .cm-review-field-value {
+            font-size: 14px;
+            color: var(--clr-text);
+            line-height: 1.5;
+            background: var(--clr-surface);
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            border: 1px solid var(--clr-border);
+            white-space: pre-wrap;
+        }
+        .cm-review-reference { margin-top: 12px; margin-bottom: 12px; }
+        .cm-review-reference summary {
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--clr-primary);
+            margin-bottom: 6px;
+        }
+        .cm-review-reference > div {
+            font-size: 13px;
+            color: var(--clr-text-secondary);
+            line-height: 1.5;
+            background: #eff6ff;
+            padding: 10px 12px;
+            border-radius: var(--radius);
+            border-left: 3px solid var(--clr-primary);
+            white-space: pre-wrap;
+        }
+        .cm-review-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--clr-border);
+        }
+        .cm-comment-input {
+            flex: 1;
+            padding: 6px 10px;
+            border: 1.5px solid var(--clr-border);
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-family: inherit;
+            color: var(--clr-text);
+        }
+        .cm-review-btns { display: flex; gap: 6px; flex-shrink: 0; }
+        .cm-grade-needswork { background: #fef3c7; color: #92400e; }
+
+        /* === Data table === */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--clr-surface);
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            font-size: 14px;
+        }
+        .data-table thead { background: var(--clr-bg); }
+        .data-table th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--clr-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border-bottom: 1px solid var(--clr-border);
+            white-space: nowrap;
+        }
+        .data-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--clr-border);
+            color: var(--clr-text);
+            vertical-align: middle;
+        }
+        .data-table tbody tr:last-child td { border-bottom: none; }
+        .data-table tbody tr:hover { background: #f8fafc; }
+
+        /* === Buttons === */
+        .btn-primary {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius);
+            background: var(--clr-primary);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius);
+            background: var(--clr-surface);
+            font-size: 12px;
+            cursor: pointer;
+            color: var(--clr-text);
+        }
+        .btn-sm.btn-primary {
+            background: var(--clr-primary);
+            color: #fff;
+            border-color: var(--clr-primary);
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--clr-border);
+            border-radius: var(--radius);
+            color: var(--clr-text-secondary);
+            cursor: pointer;
+            font-size: 12px;
+            padding: 4px 12px;
+        }
+        .btn-muted {
+            background: var(--clr-bg);
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius);
+            color: var(--clr-text-secondary);
+            cursor: pointer;
+            font-size: 12px;
+            padding: 4px 10px;
+        }
+        .btn-success {
+            background: #16a34a;
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+        .btn-warning {
+            background: #d97706;
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+        .btn-danger {
+            background: var(--clr-error);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+        .btn-cancel {
+            padding: 10px 20px;
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius);
+            background: var(--clr-surface);
+            color: var(--clr-text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* === Status badges === */
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-active { background: #dcfce7; color: #166534; }
+        .status-inactive { background: #f1f5f9; color: #64748b; }
+        .status-completed { background: #dbeafe; color: #1d4ed8; }
+
+        /* === Forms === */
+        .filter-select {
+            padding: 10px 14px;
+            border: 1.5px solid var(--clr-border);
+            border-radius: var(--radius);
+            font-size: 14px;
+            color: var(--clr-text);
+            background: var(--clr-surface);
+            cursor: pointer;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--clr-text);
+            margin-bottom: 6px;
+        }
+        .form-group select,
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--clr-border);
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--clr-text);
+            background: var(--clr-surface);
+        }
+        .form-row { display: flex; gap: 16px; }
+        .form-row .form-group { flex: 1; }
+        .form-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--clr-border);
+            margin-top: 8px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--clr-text);
+            cursor: pointer;
+        }
+        .checkbox-label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--clr-primary);
+        }
+
+        /* === Modal (static for mockup) === */
+        .modal-static {
+            background: var(--clr-surface);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            max-width: 640px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--clr-text);
+        }
+        .btn-close-modal {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--clr-bg);
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--clr-text-secondary);
+        }
+
+        /* === Toast === */
+        .toast-demo {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--clr-sidebar);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: var(--shadow-md);
+            z-index: 1000;
+            display: none;
+        }
+
+        /* === Layout helpers === */
+        .flex-row { display: flex; gap: 16px; align-items: flex-end; }
+        .flex-1 { flex: 1; }
+        .empty-text { font-size: 14px; color: var(--clr-text-secondary); padding: 24px 0; }
+
+        /* === Table of contents === */
+        .toc {
+            max-width: 900px;
+            margin: 0 auto 48px;
+            background: var(--clr-surface);
+            border-radius: var(--radius-lg);
+            padding: 24px 32px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc h2 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--clr-text);
+        }
+        .toc ol {
+            padding-left: 20px;
+        }
+        .toc li {
+            margin-bottom: 6px;
+        }
+        .toc a {
+            color: var(--clr-primary);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .toc a:hover { text-decoration: underline; }
+
+        /* === Annotation arrows === */
+        .annotation {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+<h1 class="page-title">Мокапы: Управление курсом</h1>
+<p class="page-subtitle">Визуальные иллюстрации к руководству инструктора. Раздел «Управление курсом».</p>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc">
+    <h2>Содержание мокапов</h2>
+    <ol>
+        <li><a href="#mockup-sidebar">Боковое меню — навигация к разделу</a></li>
+        <li><a href="#mockup-group-selector">Выбор группы и уровня курса</a></li>
+        <li><a href="#mockup-modules-list">Панель модулей по блокам</a></li>
+        <li><a href="#mockup-module-statuses">Статусы модулей: открыт / закрыт / завершён</a></li>
+        <li><a href="#mockup-sessions-table">Таблица тестовых сессий</a></li>
+        <li><a href="#mockup-session-form-module">Форма создания сессии — модульный тест</a></li>
+        <li><a href="#mockup-session-form-entrance">Форма создания сессии — входное тестирование</a></li>
+        <li><a href="#mockup-cadets-table">Таблица прогресса курсантов</a></li>
+        <li><a href="#mockup-review-unchecked">Карточка ответа — не проверено</a></li>
+        <li><a href="#mockup-review-accepted">Карточка ответа — зачтено</a></li>
+        <li><a href="#mockup-review-needswork">Карточка ответа — на доработку</a></li>
+        <li><a href="#mockup-toast">Уведомления (toast)</a></li>
+    </ol>
+</div>
+
+<!-- ================================================================
+     MOCKUP 1 — SIDEBAR NAVIGATION
+     ================================================================ -->
+<div class="mockup-section" id="mockup-sidebar">
+    <div class="mockup-label">Мокап 1</div>
+    <div class="mockup-caption">Боковое меню — навигация к разделу</div>
+    <div class="mockup-frame">
+        <div class="sidebar-mini">
+            <div class="nav-section-label">Навигация</div>
+            <div class="nav-item">
+                <span class="nav-item-icon">&#9632;</span> Обзор
+            </div>
+            <div class="nav-item">
+                <span class="nav-item-icon">&#9997;</span> Вопросы
+            </div>
+            <div class="nav-item">
+                <span class="nav-item-icon">&#9883;</span> Препараты
+            </div>
+            <div class="nav-item">
+                <span class="nav-item-icon">&#129302;</span> Генерация контента
+            </div>
+            <div class="nav-section-label">Управление</div>
+            <div class="nav-item active">
+                <span class="nav-item-icon">&#127891;</span> Управление курсом
+                <span class="annotation">&larr; Выберите</span>
+            </div>
+            <div class="nav-item">
+                <span class="nav-item-icon">&#9733;</span> Группы
+            </div>
+            <div class="nav-item">
+                <span class="nav-item-icon">&#9823;</span> Курсанты
+            </div>
+            <div class="nav-item">
+                <span class="nav-item-icon">&#9670;</span> Инструкторы
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Боковое меню кабинета инструктора. Раздел «Управление курсом» находится в секции «Управление».</p>
+</div>
+
+<!-- ================================================================
+     MOCKUP 2 — GROUP SELECTOR
+     ================================================================ -->
+<div class="mockup-section" id="mockup-group-selector">
+    <div class="mockup-label">Мокап 2</div>
+    <div class="mockup-caption">Выбор группы и уровня курса</div>
+    <div class="mockup-frame">
+        <div class="mockup-inner">
+            <div class="page-header">
+                <h1>&#127891; Управление курсом</h1>
+                <p>Модули, сессии, прогресс курсантов</p>
+            </div>
+            <div class="cm-panel">
+                <div class="flex-row">
+                    <div class="flex-1">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Группа</label>
+                            <select class="filter-select" style="width: 100%;">
+                                <option>Фармакология-2025 (PH2025)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Уровень курса</label>
+                            <select class="filter-select" style="width: 100%;">
+                                <option>3 — Фармакология и обработка ран</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Верхняя панель страницы. Выберите группу слева, уровень курса справа. После выбора группы появятся панели ниже.</p>
+</div>
+
+<!-- ================================================================
+     MOCKUP 3 — MODULES LIST
+     ================================================================ -->
+<div class="mockup-section" id="mockup-modules-list">
+    <div class="mockup-label">Мокап 3</div>
+    <div class="mockup-caption">Панель модулей по блокам</div>
+    <div class="mockup-frame">
+        <div class="mockup-inner">
+            <div class="cm-panel">
+                <h2 style="margin-bottom: 12px;">&#128218; Модули</h2>
+
+                <!-- Block I -->
+                <div class="cm-block">
+                    <div class="cm-block-header">
+                        <h3>Блок 1: Фармакологические основы</h3>
+                        <button class="btn-sm btn-outline">&#128275; Открыть блок</button>
+                    </div>
+                    <table class="data-table cm-modules-table">
+                        <thead>
+                            <tr><th>№</th><th>Модуль</th><th>MC</th><th>Задания</th><th>Статус</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Фармакологические основы (ADME, дозировки)</td>
+                                <td>12</td>
+                                <td>3</td>
+                                <td><span class="status-badge status-active">&#9989; Открыт</span></td>
+                                <td><button class="btn-sm btn-muted">Закрыть</button></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Антибактериальная терапия</td>
+                                <td>8</td>
+                                <td>2</td>
+                                <td><span class="status-badge status-active">&#9989; Открыт</span></td>
+                                <td><button class="btn-sm btn-muted">Закрыть</button></td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Антигистаминные препараты</td>
+                                <td>6</td>
+                                <td>1</td>
+                                <td><span class="status-badge status-inactive">&#128274; Закрыт</span></td>
+                                <td><button class="btn-sm btn-primary">Открыть</button></td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Глазные и ушные инфекции</td>
+                                <td>5</td>
+                                <td>0</td>
+                                <td><span class="status-badge status-inactive">&#128274; Закрыт</span></td>
+                                <td><button class="btn-sm btn-primary">Открыть</button></td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>Вирусные инфекции (ОРВИ)</td>
+                                <td>7</td>
+                                <td>1</td>
+                                <td><span class="status-badge status-inactive">&#128274; Закрыт</span></td>
+                                <td><button class="btn-sm btn-primary">Открыть</button></td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>НПВС</td>
+                                <td>9</td>
+                                <td>2</td>
+                                <td><span class="status-badge status-inactive">&#128274; Закрыт</span></td>
+                                <td><button class="btn-sm btn-primary">Открыть</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Block II (truncated) -->
+                <div class="cm-block">
+                    <div class="cm-block-header">
+                        <h3>Блок 2: Специальные препараты и критические состояния</h3>
+                        <button class="btn-sm btn-outline">&#128275; Открыть блок</button>
+                    </div>
+                    <table class="data-table cm-modules-table">
+                        <thead>
+                            <tr><th>№</th><th>Модуль</th><th>MC</th><th>Задания</th><th>Статус</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>7</td>
+                                <td>Глюкокортикостероиды</td>
+                                <td>4</td>
+                                <td>1</td>
+                                <td><span class="status-badge status-inactive">&#128274; Закрыт</span></td>
+                                <td><button class="btn-sm btn-primary">Открыть</button></td>
+                            </tr>
+                            <tr>
+                                <td>8</td>
+                                <td>Адреналин</td>
+                                <td>6</td>
+                                <td>2</td>
+                                <td><span class="status-badge status-inactive">&#128274; Закрыт</span></td>
+                                <td><button class="btn-sm btn-primary">Открыть</button></td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: var(--clr-text-secondary); font-style: italic; padding: 8px;">... ещё 6 модулей в блоке ...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Панель модулей. Модули сгруппированы по блокам. Каждый блок имеет кнопку «Открыть блок» / «Закрыть блок» для массовой операции. Колонки MC и Задания показывают количество привязанных вопросов.</p>
+</div>
+
+<!-- ================================================================
+     MOCKUP 4 — MODULE STATUSES
+     ================================================================ -->
+<div class="mockup-section" id="mockup-module-statuses">
+    <div class="mockup-label">Мокап 4</div>
+    <div class="mockup-caption">Статусы модулей: открыт / закрыт / завершён</div>
+    <div class="mockup-frame">
+        <div class="mockup-inner">
+            <table class="data-table cm-modules-table">
+                <thead>
+                    <tr><th>№</th><th>Модуль</th><th>MC</th><th>Задания</th><th>Статус</th><th></th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Фармакологические основы</td>
+                        <td>12</td>
+                        <td>3</td>
+                        <td><span class="status-badge status-active">&#9989; Открыт</span> <span class="annotation">Курсанты видят</span></td>
+                        <td><button class="btn-sm btn-muted">Закрыть</button></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Антибактериальная терапия</td>
+                        <td>8</td>
+                        <td>2</td>
+                        <td><span class="status-badge status-inactive">&#128274; Закрыт</span> <span class="annotation">Курсанты не видят</span></td>
+                        <td><button class="btn-sm btn-primary">Открыть</button></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Антигистаминные препараты</td>
+                        <td>6</td>
+                        <td>1</td>
+                        <td><span class="status-badge status-completed">&#9989; Завершён</span> <span class="annotation">Все прошли</span></td>
+                        <td><button class="btn-sm btn-muted">Закрыть</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <p class="mockup-note">Три возможных статуса модуля. Открытый модуль виден курсантам, закрытый — нет. Завершённый отображается синим.</p>
+</div>
+
+<!-- ================================================================
+     MOCKUP 5 — SESSIONS TABLE
+     ================================================================ -->
+<div class="mockup-section" id="mockup-sessions-table">
+    <div class="mockup-label">Мокап 5</div>
+    <div class="mockup-caption">Таблица тестовых сессий</div>
+    <div class="mockup-frame">
+        <div class="mockup-inner">
+            <div class="cm-panel">
+                <h2 style="margin-bottom: 12px;">&#128221; Тестовые сессии</h2>
+                <div style="margin-bottom: 12px;">
+                    <button class="btn-primary">+ Создать сессию</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Название</th><th>Тип</th><th>Модуль</th><th>Статус</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Входной тест</td>
+                            <td>Входной</td>
+                            <td>&mdash;</td>
+                            <td><span class="status-badge status-active">Активна</span></td>
+                            <td><button class="btn-sm btn-muted">Закрыть</button></td>
+                        </tr>
+                        <tr>
+                            <td>Тест по модулю 1</td>
+                            <td>Модульный</td>
+                            <td>1. Фармакологические основы</td>
+                            <td><span class="status-badge status-inactive">Черновик</span></td>
+                            <td>
+                                <button class="btn-sm btn-primary">Активировать</button>
+                                <button class="btn-sm btn-muted">&#128465;</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Тест по модулю 2</td>
+                            <td>Модульный</td>
+                            <td>2. Антибактериальная терапия</td>
+                            <td><span class="status-badge status-completed">Закрыта</span></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Таблица сессий с тремя статусами: Черновик (можно активировать или удалить), Активна (можно закрыть), Закрыта (нет действий). Кнопка «+ Создать сессию» открывает форму.</p>
+</div>
+
+<!-- ================================================================
+     MOCKUP 6 — SESSION FORM (MODULE TYPE)
+     ================================================================ -->
+<div class="mockup-section" id="mockup-session-form-module">
+    <div class="mockup-label">Мокап 6</div>
+    <div class="mockup-caption">Форма создания сессии — модульный тест</div>
+    <div class="mockup-frame">
+        <div class="mockup-inner" style="display: flex; justify-content: center;">
+            <div class="modal-static">
+                <div class="modal-header">
+                    <h2>Новая тестовая сессия</h2>
+                    <button class="btn-close-modal">&times;</button>
+                </div>
+                <div class="form-group">
+                    <label>Название *</label>
+                    <input type="text" value="Тест по модулю 3" style="width:100%;padding:10px 14px;border:1.5px solid var(--clr-border);border-radius:var(--radius);font-size:14px;color:var(--clr-text);background:var(--clr-surface);">
+                </div>
+                <div class="form-group">
+                    <label>Тип сессии</label>
+                    <select style="width:100%;padding:10px 14px;border:1.5px solid var(--clr-border);border-radius:var(--radius);font-size:14px;color:var(--clr-text);background:var(--clr-surface);">
+                        <option selected>Модульный тест</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Модуль</label>
+                    <select style="width:100%;padding:10px 14px;border:1.5px solid var(--clr-border);border-radius:var(--radius);font-size:14px;color:var(--clr-text);background:var(--clr-surface);">
+                        <option>3. Антигистаминные препараты</option>
+                    </select>
+                    <span class="annotation" style="margin-left: 0; margin-top: 6px; display: inline-block;">Один модуль для модульного теста</span>
+                </div>
+                <div class="form-footer">
+                    <button class="btn-cancel">Отмена</button>
+                    <button class="btn-primary">Создать сессию</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Форма для создания модульного теста. Тип «Модульный тест» показывает выпадающий список с одним модулем.</p>
+</div>
+
+<!-- ================================================================
+     MOCKUP 7 — SESSION FORM (ENTRANCE/FINAL TYPE)
+     ================================================================ -->
+<div class="mockup-section" id="mockup-session-form-entrance">
+    <div class="mockup-label">Мокап 7</div>
+    <div class="mockup-caption">Форма создания сессии — входное тестирование</div>
+    <div class="mockup-frame">
+        <div class="mockup-inner" style="display: flex; justify-content: center;">
+            <div class="modal-static">
+                <div class="modal-header">
+                    <h2>Новая тестовая сессия</h2>
+                    <button class="btn-close-modal">&times;</button>
+                </div>
+                <div class="form-group">
+                    <label>Название *</label>
+                    <input type="text" value="Входное тестирование" style="width:100%;padding:10px 14px;border:1.5px solid var(--clr-border);border-radius:var(--radius);font-size:14px;color:var(--clr-text);background:var(--clr-surface);">
+                </div>
+                <div class="form-group">
+                    <label>Тип сессии</label>
+                    <select style="width:100%;padding:10px 14px;border:1.5px solid var(--clr-border);border-radius:var(--radius);font-size:14px;color:var(--clr-text);background:var(--clr-surface);">
+                        <option selected>Входное тестирование</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Модули (выберите несколько)</label>
+                    <div style="max-height: 200px; overflow-y: auto; border: 1px solid var(--clr-border); border-radius: var(--radius); padding: 8px;">
+                        <label class="checkbox-label" style="display: block; margin-bottom: 4px;">
+                            <input type="checkbox" checked> 1. Фармакологические основы
+                        </label>
+                        <label class="checkbox-label" style="display: block; margin-bottom: 4px;">
+                            <input type="checkbox" checked> 2. Антибактериальная терапия
+                        </label>
+                        <label class="checkbox-label" style="display: block; margin-bottom: 4px;">
+                            <input type="checkbox" checked> 3. Антигистаминные препараты
+                        </label>
+                        <label class="checkbox-label" style="display: block; margin-bottom: 4px;">
+                            <input type="checkbox"> 4. Глазные и ушные инфекции
+                        </label>
+                        <label class="checkbox-label" style="display: block; margin-bottom: 4px;">
+                            <input type="checkbox"> 5. Вирусные инфекции (ОРВИ)
+                        </label>
+                        <label class="checkbox-label" style="display: block; margin-bottom: 4px;">
+                            <input type="checkbox"> 6. НПВС
+                        </label>
+                    </div>
+                    <span class="annotation" style="margin-left: 0; margin-top: 6px; display: inline-block;">Несколько модулей для входного/финального теста</span>
+                </div>
+                <div class="form-footer">
+                    <button class="btn-cancel">Отмена</button>
+                    <button class="btn-primary">Создать сессию</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Форма для входного или финального тестирования. Вместо одного модуля — список с галочками. Отметьте модули, вопросы из которых войдут в тест.</p>
+</div>
+
+<!-- ================================================================
+     MOCKUP 8 — CADETS TABLE
+     ================================================================ -->
+<div class="mockup-section" id="mockup-cadets-table">
+    <div class="mockup-label">Мокап 8</div>
+    <div class="mockup-caption">Таблица прогресса курсантов</div>
+    <div class="mockup-frame">
+        <div class="mockup-inner">
+            <div class="cm-panel">
+                <h2 style="margin-bottom: 12px;">&#128100; Статус курсантов</h2>
+                <p style="color: var(--clr-text-secondary); font-size: 13px; margin-bottom: 10px;">Нажмите на имя курсанта, чтобы просмотреть развёрнутые ответы.</p>
+                <div style="overflow-x: auto;">
+                    <table class="data-table cm-cadets-status">
+                        <thead>
+                            <tr>
+                                <th>Курсант</th>
+                                <th title="Фармакологические основы">М1</th>
+                                <th title="Антибактериальная терапия">М2</th>
+                                <th title="Антигистаминные препараты">М3</th>
+                                <th>Задания</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="#" class="cm-cadet-link" onclick="return false;">Иванов Иван Иванович</a></td>
+                                <td style="text-align: center;"><span style="color: #16a34a; font-weight: 600;">85%</span></td>
+                                <td style="text-align: center;"><span style="color: #16a34a; font-weight: 600;">72%</span></td>
+                                <td style="text-align: center;"><span style="color: #d97706; font-weight: 600;">58%</span></td>
+                                <td style="text-align: center;">2/3</td>
+                                <td><button class="btn-sm btn-muted" title="Сбросить результаты">&#8634;</button></td>
+                            </tr>
+                            <tr>
+                                <td><a href="#" class="cm-cadet-link" onclick="return false;">Петров Пётр Петрович</a></td>
+                                <td style="text-align: center;"><span style="color: #16a34a; font-weight: 600;">91%</span></td>
+                                <td style="text-align: center;"><span style="color: #16a34a; font-weight: 600;">78%</span></td>
+                                <td style="text-align: center; color: #94a3b8;">&mdash;</td>
+                                <td style="text-align: center;">3/3</td>
+                                <td><button class="btn-sm btn-muted" title="Сбросить результаты">&#8634;</button></td>
+                            </tr>
+                            <tr>
+                                <td><a href="#" class="cm-cadet-link" onclick="return false;">Сидорова Анна Викторовна</a></td>
+                                <td style="text-align: center;"><span style="color: #d97706; font-weight: 600;">65%</span></td>
+                                <td style="text-align: center;"><span style="color: #dc2626; font-weight: 600;">42%</span></td>
+                                <td style="text-align: center; color: #94a3b8;">&mdash;</td>
+                                <td style="text-align: center;">0/2</td>
+                                <td><button class="btn-sm btn-muted" title="Сбросить результаты">&#8634;</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Таблица прогресса. Зелёный — 70%+, оранжевый — 50-69%, красный — ниже 50%, прочерк — не проходил. Колонка «Задания» — проверено/всего. Имя курсанта кликабельно — открывает панель проверки. Кнопка &#8634; сбрасывает результаты MC.</p>
+</div>
+
+<!-- ================================================================
+     MOCKUP 9 — REVIEW CARD (UNCHECKED)
+     ================================================================ -->
+<div class="mockup-section" id="mockup-review-unchecked">
+    <div class="mockup-label">Мокап 9</div>
+    <div class="mockup-caption">Карточка ответа — не проверено</div>
+    <div class="mockup-frame">
+        <div class="mockup-inner">
+            <div class="cm-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2>&#128196; Ответы: Иванов Иван Иванович</h2>
+                    <button class="btn-sm btn-outline">&#10005; Закрыть</button>
+                </div>
+
+                <div class="cm-review-card">
+                    <div class="cm-review-card-header">
+                        <span>&#128161; Модуль 1</span>
+                        <span class="status-badge status-inactive">Не проверено</span>
+                    </div>
+                    <div class="cm-review-question">Объясните, почему при анафилактическом шоке адреналин является препаратом первой линии. Укажите не менее трёх причин.</div>
+
+                    <div class="cm-review-field">
+                        <div class="cm-review-field-label">Причина 1</div>
+                        <div class="cm-review-field-value">Адреналин быстро повышает артериальное давление за счёт сужения периферических сосудов</div>
+                    </div>
+                    <div class="cm-review-field">
+                        <div class="cm-review-field-label">Причина 2</div>
+                        <div class="cm-review-field-value">Расширяет бронхи, устраняя бронхоспазм</div>
+                    </div>
+                    <div class="cm-review-field">
+                        <div class="cm-review-field-label">Причина 3</div>
+                        <div class="cm-review-field-value">Подавляет дальнейшее высвобождение медиаторов аллергии из тучных клеток</div>
+                    </div>
+
+                    <details class="cm-review-reference" open>
+                        <summary>Эталонный ответ</summary>
+                        <div>1. Вазоконстрикция (альфа-1): повышает АД, уменьшает отёк
+2. Бронходилатация (бета-2): устраняет бронхоспазм
+3. Стабилизация мембран тучных клеток: прекращает дегрануляцию
+4. Положительный инотропный эффект (бета-1): усиливает сердечный выброс</div>
+                    </details>
+
+                    <div class="cm-review-actions">
+                        <input type="text" class="cm-comment-input" placeholder="Комментарий инструктора...">
+                        <div class="cm-review-btns">
+                            <button class="btn-sm btn-success">&#9989; Зачтено</button>
+                            <button class="btn-sm btn-warning">&#9999; На доработку</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Карточка непроверенного ответа. Заголовок с иконкой типа задания и бейджем «Не проверено». Текст вопроса, поля ответа курсанта, раскрытый эталонный ответ. Внизу — комментарий и кнопки оценки.</p>
+</div>
+
+<!-- ================================================================
+     MOCKUP 10 — REVIEW CARD (ACCEPTED)
+     ================================================================ -->
+<div class="mockup-section" id="mockup-review-accepted">
+    <div class="mockup-label">Мокап 10</div>
+    <div class="mockup-caption">Карточка ответа — зачтено</div>
+    <div class="mockup-frame">
+        <div class="mockup-inner">
+            <div class="cm-review-card">
+                <div class="cm-review-card-header">
+                    <span>&#128290; Модуль 1</span>
+                    <span class="status-badge status-active">&#9989; Зачтено</span>
+                </div>
+                <div class="cm-review-question">Рассчитайте дозу адреналина для в/м введения при анафилаксии. Масса пациента: 70 кг.</div>
+
+                <div class="cm-review-field">
+                    <div class="cm-review-field-label">Дозировка</div>
+                    <div class="cm-review-field-value">0.3 мг (0.3 мл раствора 1:1000)</div>
+                </div>
+                <div class="cm-review-field">
+                    <div class="cm-review-field-label">Обоснование</div>
+                    <div class="cm-review-field-value">Стандартная доза для взрослого 0.3-0.5 мг в/м в переднебоковую поверхность бедра. Масса тела не влияет на стандартную дозу для взрослых.</div>
+                </div>
+
+                <div class="cm-review-actions">
+                    <input type="text" class="cm-comment-input" value="Верно, хорошее обоснование." style="color: var(--clr-text);">
+                    <div class="cm-review-btns">
+                        <button class="btn-sm btn-success">&#9989; Зачтено</button>
+                        <button class="btn-sm btn-warning">&#9999; На доработку</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Зачтённый ответ. Бейдж «Зачтено» зелёным. Комментарий инструктора сохранён.</p>
+</div>
+
+<!-- ================================================================
+     MOCKUP 11 — REVIEW CARD (NEEDS WORK)
+     ================================================================ -->
+<div class="mockup-section" id="mockup-review-needswork">
+    <div class="mockup-label">Мокап 11</div>
+    <div class="mockup-caption">Карточка ответа — на доработку</div>
+    <div class="mockup-frame">
+        <div class="mockup-inner">
+            <div class="cm-review-card">
+                <div class="cm-review-card-header">
+                    <span>&#128221; Модуль 6</span>
+                    <span class="status-badge cm-grade-needswork">&#9999; На доработку</span>
+                </div>
+                <div class="cm-review-question">Перечислите 5 опасных лекарственных комбинаций с НПВС и укажите возможные последствия.</div>
+
+                <div class="cm-review-field">
+                    <div class="cm-review-field-label">Ответ</div>
+                    <div class="cm-review-field-value">1. НПВС + антикоагулянты — повышение риска кровотечения
+2. НПВС + ГКС — риск язвы желудка
+3. НПВС + метотрексат — токсичность метотрексата</div>
+                </div>
+
+                <div class="cm-review-actions">
+                    <input type="text" class="cm-comment-input" value="Указаны только 3 комбинации из 5. Добавьте НПВС+диуретики и НПВС+Li." style="color: var(--clr-text);">
+                    <div class="cm-review-btns">
+                        <button class="btn-sm btn-success">&#9989; Зачтено</button>
+                        <button class="btn-sm btn-warning">&#9999; На доработку</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Ответ «На доработку». Бейдж жёлтым цветом. Комментарий инструктора объясняет, что нужно доработать.</p>
+</div>
+
+<!-- ================================================================
+     MOCKUP 12 — TOAST NOTIFICATIONS
+     ================================================================ -->
+<div class="mockup-section" id="mockup-toast">
+    <div class="mockup-label">Мокап 12</div>
+    <div class="mockup-caption">Уведомления (toast)</div>
+    <div class="mockup-frame">
+        <div class="mockup-inner">
+            <p style="font-size: 14px; color: var(--clr-text-secondary); margin-bottom: 16px;">Примеры уведомлений, появляющихся внизу экрана после действий:</p>
+            <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+                <div style="background: var(--clr-sidebar); color: #fff; padding: 12px 24px; border-radius: var(--radius); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-md); display: inline-block;">
+                    Уровень курса обновлён
+                </div>
+                <div style="background: var(--clr-sidebar); color: #fff; padding: 12px 24px; border-radius: var(--radius); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-md); display: inline-block;">
+                    Модуль открыт
+                </div>
+                <div style="background: var(--clr-sidebar); color: #fff; padding: 12px 24px; border-radius: var(--radius); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-md); display: inline-block;">
+                    Блок 1 открыт
+                </div>
+                <div style="background: var(--clr-sidebar); color: #fff; padding: 12px 24px; border-radius: var(--radius); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-md); display: inline-block;">
+                    Сессия создана
+                </div>
+                <div style="background: var(--clr-sidebar); color: #fff; padding: 12px 24px; border-radius: var(--radius); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-md); display: inline-block;">
+                    Сессия активирована
+                </div>
+                <div style="background: var(--clr-sidebar); color: #fff; padding: 12px 24px; border-radius: var(--radius); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-md); display: inline-block;">
+                    Зачтено
+                </div>
+                <div style="background: var(--clr-sidebar); color: #fff; padding: 12px 24px; border-radius: var(--radius); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-md); display: inline-block;">
+                    Результаты сброшены
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="mockup-note">Уведомления появляются на 3 секунды внизу экрана после каждого успешного действия.</p>
+</div>
+
+</body>
+</html>
