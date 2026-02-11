@@ -358,7 +358,7 @@ const ReviewCards = (() => {
                         options: content.options,
                         explanation: content.explanation || null,
                         competency_id: competencyId,
-                        competency_block: competencyBlock,
+                        competency_block: competencyBlock || 'basics',
                         difficulty: content.difficulty || 2,
                         category: content.category || null,
                         module: content.module || null,
@@ -420,7 +420,7 @@ const ReviewCards = (() => {
                         options: content.options,
                         explanation: content.rationale || null,
                         competency_id: competencyId,
-                        competency_block: competencyBlock,
+                        competency_block: competencyBlock || 'basics',
                         difficulty: content.difficulty || 2,
                         category: 'scenario',
                         created_by: user.id,
@@ -642,10 +642,14 @@ const ReviewCards = (() => {
     // =============================================
 
     function getCompetencyBlock(compId) {
-        if (typeof COMPETENCIES_CONFIG !== 'undefined' && COMPETENCIES_CONFIG[compId]) {
+        if (typeof COMPETENCIES_CONFIG !== 'undefined' && compId && COMPETENCIES_CONFIG[compId]) {
             return COMPETENCIES_CONFIG[compId].block;
         }
-        return null;
+        // Fallback: первая часть competency_id до дефиса, или дефолт
+        if (compId && typeof compId === 'string' && compId.includes('-')) {
+            return compId.split('-')[0];
+        }
+        return 'basics';
     }
 
     function showToast(message, isError) {
